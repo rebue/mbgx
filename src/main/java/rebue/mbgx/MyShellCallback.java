@@ -3,6 +3,8 @@ package rebue.mbgx;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.text.edits.MalformedTreeException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
@@ -29,12 +31,11 @@ public class MyShellCallback extends DefaultShellCallback {
     }
 
     @Override
-    public String mergeJavaFile(String newFileSource, String existingFileFullPath, String[] javadocTags,
-            String fileEncoding) throws ShellException {
+    public String mergeJavaFile(String newFileSource, String existingFileFullPath, String[] javadocTags, String fileEncoding) throws ShellException {
         File oldFile = new File(existingFileFullPath);
         try {
             return MergeJavaFileUtil.merge(newFileSource, oldFile, javadocTags);
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException | OperationCanceledException | MalformedTreeException e) {
             e.printStackTrace();
             throw new ShellException(e);
         }

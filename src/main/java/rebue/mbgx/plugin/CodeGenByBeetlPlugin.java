@@ -15,6 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.Template;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.text.edits.MalformedTreeException;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -114,8 +116,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         // 1.通过配置模板获取生成代码模板的配置参数
         // 1.1.获取当前表的实体类简称并注入配置模板
-        String entityName = JavaBeansUtil
-                .getCamelCaseString(introspectedTable.getFullyQualifiedTable().getIntrospectedTableName(), true);
+        String entityName = JavaBeansUtil.getCamelCaseString(introspectedTable.getFullyQualifiedTable().getIntrospectedTableName(), true);
         cfgTemplate.binding("entityName", entityName);
         cfgTemplate.binding("entitySimpleName", removeFirstWord(entityName));
         // 1.2.返回配置模板的渲染结果
@@ -194,13 +195,12 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     }
                     // 5.3.按配置要求是否进行备份
                     if (templateCfg.getBackup()) {
-                        Files.copy(targetFile, new File(targetFile.getCanonicalPath().toString() + "."
-                                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))));
+                        Files.copy(targetFile,
+                                new File(targetFile.getCanonicalPath().toString() + "." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))));
                     }
                     // 5.4.如果是java文件，那么合并文件
                     if (targetFile.getName().endsWith(".java")) {
-                        sTarget = MergeJavaFileUtil.merge(sTarget, targetFile, new String[] { "@ibatorgenerated",
-                                "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+                        sTarget = MergeJavaFileUtil.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
                     }
                 } else {
                     targetFile.getParentFile().mkdirs();
@@ -211,7 +211,10 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(targetFile), "utf-8")) {
                     osw.write(sTarget);
                 }
-            } catch (IOException e) {
+
+//                MergeJavaFileUtil.organizeImports(sTarget, targetFile.getAbsolutePath());
+//            } catch (IOException | OperationCanceledException | MalformedTreeException | CoreException | BadLocationException e) {
+            } catch (IOException | OperationCanceledException | MalformedTreeException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
@@ -225,8 +228,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
      */
     private Boolean isMiddleTable(TopLevelClass topLevelClass) {
         for (Field field : topLevelClass.getFields()) {
-            if (!(field.getName().equals("id")) && !field.getName().endsWith("Id")
-                    && !(field.getName().equals("serialVersionUID"))) {
+            if (!(field.getName().equals("id")) && !field.getName().endsWith("Id") && !(field.getName().equals("serialVersionUID"))) {
                 return false;
             }
         }
