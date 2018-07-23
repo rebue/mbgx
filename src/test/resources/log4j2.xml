@@ -62,10 +62,6 @@
 			<AppenderRef ref="logfile" />
 			<AppenderRef ref="errfile" />
 		</Root>
-
-		<logger name="rebue.mbgx" level="trace">
-			<AppenderRef ref="logfile" />
-		</logger>
 	</Loggers>
 
 </Configuration>

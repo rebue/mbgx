@@ -2,9 +2,11 @@ package rebue.mbgx.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,8 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.ast.expr.Name;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
@@ -61,7 +65,6 @@ public class MergeJavaFileUtil {
      */
     public static String merge(String newFileSource, File existingFile, String[] javadocTags) throws FileNotFoundException {
         _log.info("将已存在的Java文件中的手工添加的部分合并进新模板的Java代码中: 已存在的文件-{}", existingFile.getAbsolutePath());
-//        _log.trace("将已存在的Java文件中的手工添加的部分合并进新模板的Java代码中: 新模板的代码\r\n{}", newFileSource);
         CompilationUnit newCompilationUnit = JavaParser.parse(newFileSource);
         CompilationUnit existingCompilationUnit = JavaParser.parse(existingFile);
         return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTags);
@@ -88,18 +91,6 @@ public class MergeJavaFileUtil {
                 }
             });
         });
-
-        // 合并imports
-        NodeList<ImportDeclaration> existingImports = existingCompilationUnit.getImports();
-        NodeList<ImportDeclaration> newImports = newCompilationUnit.getImports();
-        OUTLOOP: for (ImportDeclaration existingImportDeclaration : existingImports) {
-            for (ImportDeclaration newImportDeclaration : newImports) {
-                if (newImportDeclaration.getName().equals(existingImportDeclaration.getName())) {
-                    continue OUTLOOP;
-                }
-            }
-            newImports.add(existingImportDeclaration);
-        }
 
         // 类和接口
         List<ClassOrInterfaceDeclaration> classOrInterfaceDeclarations = existingCompilationUnit.findAll(ClassOrInterfaceDeclaration.class);
@@ -213,19 +204,30 @@ public class MergeJavaFileUtil {
             }
         }
 
-        PrettyPrinterConfiguration prettyPrinterConfiguration = new PrettyPrinterConfiguration();
-        prettyPrinterConfiguration.setOrderImports(true);
-        return newCompilationUnit.toString(prettyPrinterConfiguration);
+        // 合并imports
+        NodeList<ImportDeclaration> existingImports = existingCompilationUnit.getImports();
+        NodeList<ImportDeclaration> newImports = newCompilationUnit.getImports();
+        OUTLOOP: for (ImportDeclaration existingImportDeclaration : existingImports) {
+            for (ImportDeclaration newImportDeclaration : newImports) {
+                if (newImportDeclaration.getName().equals(existingImportDeclaration.getName())) {
+                    continue OUTLOOP;
+                }
+            }
+            newImports.add(existingImportDeclaration);
+        }
+
+        // 移除没有用的import，并返回格式化后的源代码
+        return removeUnusedImports(newCompilationUnit.toString());
     }
 
     /**
-     * 判断Javadoc的注释中有没有包含指定的注解
+     * 判断节点是否有Javadoc注释，且里面包含指定的注解
      * 
-     * @param javadocComment
-     *            Javadoc的注释
+     * @param node
+     *            节点
      * @param tags
      *            判断是否包含的注解
-     * @return 是否包含
+     * @return 是否有Javadoc注释，且里面包含指定的注解
      */
     private static boolean hasTag(Node node, String[] tags) {
         Optional<Comment> comment = node.getComment();
@@ -257,7 +259,61 @@ public class MergeJavaFileUtil {
         return false;
     }
 
+    /**
+     * 将参数列表转成String[]
+     * 
+     * @param paramTypes
+     *            参数列表
+     * @return String[]
+     */
     private static String[] paramTypeToStrings(List<Type> paramTypes) {
         return paramTypes.stream().map(paramType -> paramType.asString()).toArray(String[]::new);
+    }
+
+    /**
+     * 移除没有用的import，并返回格式化后的源代码
+     * 
+     * @param sourceCode
+     *            源代码内容
+     * @return 优化处理后的代码内容
+     */
+    private static String removeUnusedImports(String sourceCode) {
+        CompilationUnit compilationUnit = JavaParser.parse(sourceCode);
+
+        // 先清空imports，避免查询节点的时候查到就不能判断是否使用过了
+        NodeList<ImportDeclaration> oldImports = compilationUnit.getImports();
+        NodeList<ImportDeclaration> newImports = new NodeList<>();
+        compilationUnit.setImports(newImports);
+
+        Set<String> classNames = new HashSet<>();
+        // 获取类
+        List<SimpleName> simpleNames = compilationUnit.findAll(SimpleName.class);
+        for (SimpleName simpleName : simpleNames) {
+            String sName = simpleName.getIdentifier();
+            if (sName.charAt(0) >= 'A' && sName.charAt(0) <= 'Z')
+                classNames.add(sName);
+        }
+        // 获取注解
+        List<Name> names = compilationUnit.findAll(Name.class);
+        for (Name name : names) {
+            String sName = name.getIdentifier();
+            if (sName.equals("PageInfo"))
+                System.out.println(sName);
+            if (sName.charAt(0) >= 'A' && sName.charAt(0) <= 'Z')
+                classNames.add(sName);
+        }
+        _log.debug(classNames.toString());
+        OUTLOOP: for (ImportDeclaration importDeclaration : oldImports) {
+            for (String className : classNames) {
+                if (className.equals(importDeclaration.getName().getIdentifier())) {
+                    newImports.add(importDeclaration);
+                    continue OUTLOOP;
+                }
+            }
+        }
+
+        PrettyPrinterConfiguration prettyPrinterConfiguration = new PrettyPrinterConfiguration();
+        prettyPrinterConfiguration.setOrderImports(true);   // 排序imports
+        return compilationUnit.toString(prettyPrinterConfiguration);
     }
 }
