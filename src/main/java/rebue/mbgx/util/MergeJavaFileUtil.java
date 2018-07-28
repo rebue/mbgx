@@ -135,10 +135,10 @@ public class MergeJavaFileUtil {
                     if (existingMember.isFieldDeclaration()) {
                         // 已存在的字段
                         FieldDeclaration existingFieldDeclaration = existingMember.asFieldDeclaration();
+                        // 获取字段的类型
+                        String existingFieldType = getFieldType(existingFieldDeclaration);
                         // 获取字段的名称
-                        String existingFieldType = ((VariableDeclarator) existingFieldDeclaration.getChildNodes().get(0)).getTypeAsString();
-                        // 获取字段的名称
-                        String existingFieldName = ((VariableDeclarator) existingFieldDeclaration.getChildNodes().get(0)).getNameAsString();
+                        String existingFieldName = getFieldName(existingFieldDeclaration);
                         // 新代码中的字段
                         Optional<FieldDeclaration> newFieldOptional = newClassOrInterfaceDeclaration.getFieldByName(existingFieldName);
                         // 如果在新代码中已存在，那么先删除
@@ -257,6 +257,32 @@ public class MergeJavaFileUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * 获取字段名称
+     */
+    private static String getFieldName(FieldDeclaration fieldDeclaration) {
+        List<Node> childNodes = fieldDeclaration.getChildNodes();
+        for (Node node : childNodes) {
+            if (node instanceof VariableDeclarator) {
+                return ((VariableDeclarator) node).getNameAsString();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取字段类型
+     */
+    private static String getFieldType(FieldDeclaration fieldDeclaration) {
+        List<Node> childNodes = fieldDeclaration.getChildNodes();
+        for (Node node : childNodes) {
+            if (node instanceof VariableDeclarator) {
+                return ((VariableDeclarator) node).getTypeAsString();
+            }
+        }
+        return null;
     }
 
     /**

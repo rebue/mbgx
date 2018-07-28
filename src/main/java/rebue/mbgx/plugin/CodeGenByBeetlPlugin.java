@@ -23,6 +23,8 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.io.Files;
@@ -38,6 +40,7 @@ import rebue.mbgx.util.RemarksUtil;
  * @author zbz
  */
 public class CodeGenByBeetlPlugin extends PluginAdapter {
+    private final static Logger _log                     = LoggerFactory.getLogger(CodeGenByBeetlPlugin.class);
 
     /**
      * beetl的配置文件（位于classpath下的路径）
@@ -232,6 +235,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 return false;
             }
         }
+        _log.info("中间表的类: {}", topLevelClass.getType().getShortName());
         return true;
     }
 
