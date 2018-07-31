@@ -1,4 +1,4 @@
-package rebue.mbgx;
+package rebue.mbgx.custom;
 
 import java.sql.Types;
 

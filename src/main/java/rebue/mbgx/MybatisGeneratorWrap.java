@@ -15,6 +15,8 @@ import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
 
+import rebue.mbgx.custom.ShellCallbackEx;
+
 public class MybatisGeneratorWrap {
     /**
      * @param overwrite
@@ -40,7 +42,7 @@ public class MybatisGeneratorWrap {
         List<String> warnings = new ArrayList<>();
         ConfigurationParser parser = new ConfigurationParser(properties, warnings);
         Configuration config = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
-        ShellCallback callback = new MyShellCallback(overwrite);
+        ShellCallback callback = new ShellCallbackEx(overwrite);
         MyBatisGenerator generator = new MyBatisGenerator(config, callback, warnings);
         generator.generate(null);
 

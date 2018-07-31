@@ -1,10 +1,8 @@
-package rebue.mbgx;
+package rebue.mbgx.custom;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.text.edits.MalformedTreeException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
@@ -20,8 +18,8 @@ import rebue.mbgx.util.MergeJavaFileUtil;
  * @author zbz
  *
  */
-public class MyShellCallback extends DefaultShellCallback {
-    public MyShellCallback(boolean overwrite) {
+public class ShellCallbackEx extends DefaultShellCallback {
+    public ShellCallbackEx(boolean overwrite) {
         super(overwrite);
     }
 
@@ -35,7 +33,7 @@ public class MyShellCallback extends DefaultShellCallback {
         File oldFile = new File(existingFileFullPath);
         try {
             return MergeJavaFileUtil.merge(newFileSource, oldFile, javadocTags);
-        } catch (FileNotFoundException | OperationCanceledException | MalformedTreeException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);
         }

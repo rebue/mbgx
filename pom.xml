@@ -19,30 +19,34 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 
+		<!-- mybatis自动生成 -->
+		<dependency>
+			<groupId>org.mybatis.generator</groupId>
+			<artifactId>mybatis-generator-core</artifactId>
+		</dependency>
+
+		<!-- MBG用来读取json格式的配置文件 -->
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+		</dependency>
+
+		<!-- 模板 -->
+		<dependency>
+			<groupId>com.ibeetl</groupId>
+			<artifactId>beetl</artifactId>
+		</dependency>
+
+		<!-- 解析java源文件的库 -->
 		<dependency>
 			<groupId>com.github.javaparser</groupId>
 			<artifactId>javaparser-symbol-solver-core</artifactId>
 			<version>3.6.14</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>com.github.javaparser</groupId>
 			<artifactId>javaparser-core</artifactId>
 			<version>3.6.14</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core -->
-		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>org.eclipse.jdt.core</artifactId>
-			<version>3.13.102</version>
-		</dependency>
-
-		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.core.manipulation -->
-		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>org.eclipse.jdt.core.manipulation</artifactId>
-			<version>1.10.0</version>
 		</dependency>
 
 		<!-- ↓↓↓↓↓↓↓↓↓↓ 日志框架log4j2 ↓↓↓↓↓↓↓↓↓↓ -->
@@ -64,32 +68,6 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-		</dependency>
-
-		<!-- MBG用来读取json格式的配置文件 -->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-		</dependency>
-		<!-- mybatis自动生成 -->
-		<dependency>
-			<groupId>org.mybatis.generator</groupId>
-			<artifactId>mybatis-generator-core</artifactId>
-		</dependency>
-
-		<!-- 解析java源文件的库 -->
-		<dependency>
-			<groupId>org.jboss.forge.roaster</groupId>
-			<artifactId>roaster-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.forge.roaster</groupId>
-			<artifactId>roaster-jdt</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.ibeetl</groupId>
-			<artifactId>beetl</artifactId>
 		</dependency>
 
 	</dependencies>

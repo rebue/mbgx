@@ -15,8 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.Template;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.text.edits.MalformedTreeException;
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
@@ -29,8 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.google.common.io.Files;
 
-import rebue.mbgx.PropInfo;
-import rebue.mbgx.TemplateCfg;
 import rebue.mbgx.util.MergeJavaFileUtil;
 import rebue.mbgx.util.RemarksUtil;
 
@@ -217,7 +213,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
 //                MergeJavaFileUtil.organizeImports(sTarget, targetFile.getAbsolutePath());
 //            } catch (IOException | OperationCanceledException | MalformedTreeException | CoreException | BadLocationException e) {
-            } catch (IOException | OperationCanceledException | MalformedTreeException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
             }
