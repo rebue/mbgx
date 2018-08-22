@@ -222,7 +222,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 在注释中添加自动生成的注解的注释行
      */
     private void addCommentLinesOfTag(JavaElement javaElement) {
-        javaElement.addJavaDocLine("自动生成，如需修改，请删除本行 " + MergeConstants.NEW_ELEMENT_TAG);
+        javaElement.addJavaDocLine(MergeConstants.NEW_ELEMENT_TAG + " 自动生成，如需修改，请删除本行");
     }
 
 }
