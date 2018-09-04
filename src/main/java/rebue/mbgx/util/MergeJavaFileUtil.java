@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.javadoc.Javadoc;
 import com.github.javaparser.javadoc.JavadocBlockTag;
+import com.github.javaparser.javadoc.description.JavadocDescriptionElement;
 import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
 public class MergeJavaFileUtil {
@@ -93,33 +95,36 @@ public class MergeJavaFileUtil {
         });
 
         // 类和接口
-        List<ClassOrInterfaceDeclaration> classOrInterfaceDeclarations = existingCompilationUnit.findAll(ClassOrInterfaceDeclaration.class);
-        for (ClassOrInterfaceDeclaration existingClassOrInterfaceDeclaration : classOrInterfaceDeclarations) {
+        List<ClassOrInterfaceDeclaration> classOrInterfaces = existingCompilationUnit.findAll(ClassOrInterfaceDeclaration.class);
+        for (ClassOrInterfaceDeclaration existingClassOrInterface : classOrInterfaces) {
             // 已存在的类或接口的名称
-            String existingClassOrInterfaceName = existingClassOrInterfaceDeclaration.getNameAsString();
+            String existingClassOrInterfaceName = existingClassOrInterface.getNameAsString();
             // 根据已存在的类或接口获取新的类或接口
-            Optional<ClassOrInterfaceDeclaration> newClassOrInterfaceDeclarationOptional = existingClassOrInterfaceDeclaration.isInterface()
+            Optional<ClassOrInterfaceDeclaration> newClassOrInterfaceOptional = existingClassOrInterface.isInterface()
                     ? newCompilationUnit.getInterfaceByName(existingClassOrInterfaceName)
                     : newCompilationUnit.getClassByName(existingClassOrInterfaceName);
 
             // 如果新代码没有此类或接口，则添加此类或接口
-            if (!newClassOrInterfaceDeclarationOptional.isPresent()) {
-                newCompilationUnit.addType(existingClassOrInterfaceDeclaration);
+            if (!newClassOrInterfaceOptional.isPresent()) {
+                newCompilationUnit.addType(existingClassOrInterface);
             } else {
-                ClassOrInterfaceDeclaration newClassOrInterfaceDeclaration = newClassOrInterfaceDeclarationOptional.get();
                 // 否则说明新代码有此类或接口，继续往下判断
+                ClassOrInterfaceDeclaration newClassOrInterface = newClassOrInterfaceOptional.get();
                 // 是否替换类或接口的javadoc注释
-                existingClassOrInterfaceDeclaration.getComment().ifPresent(comment -> {
+                existingClassOrInterface.getComment().ifPresent(comment -> {
                     comment.ifJavadocComment(javadocComment -> {
+                        // 在已存在的类或接口的注释中，如果没有包含自动生成注解，则新代码使用已存在代码的注释
                         if (!hasTag(javadocComment, javadocTags)) {
                             // 替换注释
-                            newClassOrInterfaceDeclaration.setComment(comment);
+                            newClassOrInterface.setComment(comment);
                         }
+                        // 在新代码的类或接口中，删除标记有@mbg.removeField的成员
+                        removeTagMembers(javadocComment, newClassOrInterface);
                     });
                 });
 
                 // 是否替换或添加类或接口的成员
-                NodeList<BodyDeclaration<?>> existingMembers = existingClassOrInterfaceDeclaration.getMembers();
+                NodeList<BodyDeclaration<?>> existingMembers = existingClassOrInterface.getMembers();
                 for (BodyDeclaration<?> existingMember : existingMembers) {
                     // 是否替换或添加此成员
                     Optional<Comment> comment = existingMember.getComment();
@@ -134,71 +139,71 @@ public class MergeJavaFileUtil {
                     // 如果是字段
                     if (existingMember.isFieldDeclaration()) {
                         // 已存在的字段
-                        FieldDeclaration existingFieldDeclaration = existingMember.asFieldDeclaration();
-                        // 获取字段的类型
-                        String existingFieldType = getFieldType(existingFieldDeclaration);
+                        FieldDeclaration existingField = existingMember.asFieldDeclaration();
                         // 获取字段的名称
-                        String existingFieldName = getFieldName(existingFieldDeclaration);
+                        String existingFieldName = getFieldName(existingField);
+                        // 获取字段的类型
+                        String existingFieldType = getFieldType(existingField);
                         // 新代码中的字段
-                        Optional<FieldDeclaration> newFieldOptional = newClassOrInterfaceDeclaration.getFieldByName(existingFieldName);
+                        Optional<FieldDeclaration> newFieldOptional = newClassOrInterface.getFieldByName(existingFieldName);
                         // 如果在新代码中已存在，那么先删除
-                        newFieldOptional.ifPresent(fieldDeclaration -> {
-                            fieldDeclaration.remove();
+                        newFieldOptional.ifPresent(field -> {
+                            field.remove();
                         });
                         // 由于找不到直接添加当前节点的方法，所以先添加一个新的，再用当前节点替换掉这个节点 ^O^!
-                        FieldDeclaration newFieldDeclaration = newClassOrInterfaceDeclaration.addField(existingFieldType, existingFieldName);
-                        newClassOrInterfaceDeclaration.replace(newFieldDeclaration, existingMember);
+                        FieldDeclaration newField = newClassOrInterface.addField(existingFieldType, existingFieldName);
+                        newClassOrInterface.replace(newField, existingMember);
                     }
                     // 如果是构造方法
                     else if (existingMember.isConstructorDeclaration()) {
                         // 获取已存在的构造方法的参数类型
-                        ConstructorDeclaration existConstructorDeclaration = existingMember.asConstructorDeclaration();
+                        ConstructorDeclaration existConstructor = existingMember.asConstructorDeclaration();
                         List<String> paramTypeList = new LinkedList<String>();
-                        for (Parameter parameter : existConstructorDeclaration.getParameters()) {
+                        for (Parameter parameter : existConstructor.getParameters()) {
                             paramTypeList.add(parameter.getTypeAsString());
                         }
                         String[] paramTypes = paramTypeList.stream().toArray(String[]::new);
-                        Optional<ConstructorDeclaration> newConstructorOptional = newClassOrInterfaceDeclaration.getConstructorByParameterTypes(paramTypes);
+                        Optional<ConstructorDeclaration> newConstructorOptional = newClassOrInterface.getConstructorByParameterTypes(paramTypes);
                         // 如果在新代码中已存在，那么先删除
-                        newConstructorOptional.ifPresent(constructorDeclaration -> {
-                            constructorDeclaration.remove();
+                        newConstructorOptional.ifPresent(constructor -> {
+                            constructor.remove();
                         });
                         // 由于找不到直接添加当前节点的方法，所以先添加一个新的，再用当前节点替换掉这个节点 ^O^!
-                        ConstructorDeclaration newConstructorDeclaration = newClassOrInterfaceDeclaration.addConstructor();
-                        newClassOrInterfaceDeclaration.replace(newConstructorDeclaration, existingMember);
+                        ConstructorDeclaration newConstructor = newClassOrInterface.addConstructor();
+                        newClassOrInterface.replace(newConstructor, existingMember);
                     }
                     // 如果是方法
                     else if (existingMember.isMethodDeclaration()) {
                         // 已存在的方法
-                        MethodDeclaration existingMethodDeclaration = existingMember.asMethodDeclaration();
+                        MethodDeclaration existingMethod = existingMember.asMethodDeclaration();
                         // 获取方法的名称
-                        String existingMethodName = existingMethodDeclaration.getNameAsString();
+                        String existingMethodName = existingMethod.getNameAsString();
                         // 如果有javadoc注释且包含@mbg.overrideByMethodName，则只按方法名称查找并替换新代码中的方法
-                        if (hasTag(existingMethodDeclaration, new String[] { "@mbg.overrideByMethodName" })) {
+                        if (hasTag(existingMethod, new String[] { "@mbg.overrideByMethodName" })) {
                             // 新代码中的方法
-                            List<MethodDeclaration> newMethodDeclarations = newClassOrInterfaceDeclaration.getMethodsByName(existingMethodName);
+                            List<MethodDeclaration> newMethods = newClassOrInterface.getMethodsByName(existingMethodName);
                             // 如果在新代码中已存在，那么先删除
-                            if (!newMethodDeclarations.isEmpty()) {
+                            if (!newMethods.isEmpty()) {
                                 // 删除所有找到的方法
-                                for (MethodDeclaration newMethodDeclaration : newMethodDeclarations) {
-                                    newMethodDeclaration.remove();
+                                for (MethodDeclaration newMethod : newMethods) {
+                                    newMethod.remove();
                                 }
                             }
                         } else {
                             // 新代码中的方法
-                            List<MethodDeclaration> newMethodDeclarations = newClassOrInterfaceDeclaration.getMethodsBySignature(existingMethodName,
-                                    paramTypeToStrings(existingMethodDeclaration.getSignature().getParameterTypes()));
+                            List<MethodDeclaration> newMethods = newClassOrInterface.getMethodsBySignature(existingMethodName,
+                                    paramTypeToStrings(existingMethod.getSignature().getParameterTypes()));
                             // 如果在新代码中已存在，那么先删除
-                            if (!newMethodDeclarations.isEmpty()) {
+                            if (!newMethods.isEmpty()) {
                                 // 删除所有找到的方法
-                                for (MethodDeclaration newMethodDeclaration : newMethodDeclarations) {
-                                    newMethodDeclaration.remove();
+                                for (MethodDeclaration newMethod : newMethods) {
+                                    newMethod.remove();
                                 }
                             }
                         }
                         // 由于找不到直接添加当前节点的方法，所以先添加一个新的，再用当前节点替换掉这个节点 ^O^!
-                        MethodDeclaration newMethodDeclaration = newClassOrInterfaceDeclaration.addMethod(existingMethodName);
-                        newClassOrInterfaceDeclaration.replace(newMethodDeclaration, existingMember);
+                        MethodDeclaration newMethod = newClassOrInterface.addMethod(existingMethodName);
+                        newClassOrInterface.replace(newMethod, existingMember);
                     }
                 }
             }
@@ -207,13 +212,13 @@ public class MergeJavaFileUtil {
         // 合并imports
         NodeList<ImportDeclaration> existingImports = existingCompilationUnit.getImports();
         NodeList<ImportDeclaration> newImports = newCompilationUnit.getImports();
-        OUTLOOP: for (ImportDeclaration existingImportDeclaration : existingImports) {
-            for (ImportDeclaration newImportDeclaration : newImports) {
-                if (newImportDeclaration.getName().equals(existingImportDeclaration.getName())) {
+        OUTLOOP: for (ImportDeclaration existingImport : existingImports) {
+            for (ImportDeclaration newImport : newImports) {
+                if (newImport.getName().equals(existingImport.getName())) {
                     continue OUTLOOP;
                 }
             }
-            newImports.add(existingImportDeclaration);
+            newImports.add(existingImport);
         }
 
         // 移除没有用的import，并返回格式化后的源代码
@@ -257,6 +262,47 @@ public class MergeJavaFileUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * 在新代码的类或接口中，删除标记有@mbg.removeField的成员
+     * 
+     * @param javadocComment
+     *            Javadoc的注释
+     * @param classOrInterface
+     *            查找的类或接口
+     */
+    private static void removeTagMembers(JavadocComment javadocComment, ClassOrInterfaceDeclaration classOrInterface) {
+        Javadoc javadoc = javadocComment.parse();
+        List<JavadocBlockTag> blockTags = javadoc.getBlockTags();
+        // 查找标记的成员
+        for (JavadocBlockTag javadocBlockTag : blockTags) {
+            if (javadocBlockTag.getTagName().equals("mbg.removeField")) {
+                for (JavadocDescriptionElement item : javadocBlockTag.getContent().getElements()) {
+                    // 要删除的字段
+                    String fieldName = item.toText();
+
+                    // 类或接口中的字段
+                    Optional<FieldDeclaration> fieldOptional = classOrInterface.getFieldByName(fieldName);
+                    // 删除字段
+                    fieldOptional.ifPresent(field -> {
+                        field.remove();
+                    });
+
+                    // 删除get方法
+                    List<MethodDeclaration> methods = classOrInterface.getMethodsByName("get" + StringUtils.capitalize(fieldName));
+                    if (!methods.isEmpty()) {
+                        methods.get(0).remove();
+                    }
+
+                    // 删除set方法
+                    methods = classOrInterface.getMethodsByName("set" + StringUtils.capitalize(fieldName));
+                    if (!methods.isEmpty()) {
+                        methods.get(0).remove();
+                    }
+                }
+            }
+        }
     }
 
     /**

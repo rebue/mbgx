@@ -171,9 +171,7 @@ public class CommentGeneratorEx implements CommentGenerator {
 
         javaElement.addJavaDocLine("");
 
-        addCommentLinesOfTag(javaElement);
-
-        javaElement.addJavaDocLine("");
+        javaElement.addJavaDocLine(MergeConstants.NEW_ELEMENT_TAG + " 自动生成的注释，如需修改本注释，请删除本行");
 
         javaElement.addJavaDocLine("*/");
     }
@@ -200,8 +198,6 @@ public class CommentGeneratorEx implements CommentGenerator {
         javaElement.addJavaDocLine("");
 
         addCommentLinesOfTag(javaElement);
-
-        javaElement.addJavaDocLine("");
 
         javaElement.addJavaDocLine("*/");
     }
