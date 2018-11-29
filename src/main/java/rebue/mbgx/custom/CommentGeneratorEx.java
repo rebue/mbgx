@@ -1,6 +1,7 @@
 package rebue.mbgx.custom;
 
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
@@ -8,6 +9,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.CompilationUnit;
 import org.mybatis.generator.api.dom.java.Field;
+import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.InnerClass;
 import org.mybatis.generator.api.dom.java.InnerEnum;
 import org.mybatis.generator.api.dom.java.JavaElement;
@@ -37,14 +39,14 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 这个方法将在任何其他方法之前被调用。
      */
     @Override
-    public void addConfigurationProperties(Properties properties) {
+    public void addConfigurationProperties(final Properties properties) {
     }
 
     /**
      * 给成员变量(与数据库表字段相对应的属性字段)添加注释
      */
     @Override
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
+    public void addFieldComment(final Field field, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn) {
         addJavadocOfField(field, introspectedTable, introspectedColumn);
     }
 
@@ -52,7 +54,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给成员变量(非数据库表字段的属性字段)添加注释
      */
     @Override
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
+    public void addFieldComment(final Field field, final IntrospectedTable introspectedTable) {
         addJavadocOnlyTag(field);
     }
 
@@ -60,7 +62,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给Model类添加注释
      */
     @Override
-    public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public void addModelClassComment(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
         addJavadocOfTable(topLevelClass, introspectedTable);
     }
 
@@ -68,7 +70,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给类添加注释
      */
     @Override
-    public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable) {
+    public void addClassComment(final InnerClass innerClass, final IntrospectedTable introspectedTable) {
         addJavadocOfTable(innerClass, introspectedTable);
     }
 
@@ -76,7 +78,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给类添加注释
      */
     @Override
-    public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable, boolean markAsDoNotDelete) {
+    public void addClassComment(final InnerClass innerClass, final IntrospectedTable introspectedTable, final boolean markAsDoNotDelete) {
         addClassComment(innerClass, introspectedTable);
     }
 
@@ -84,14 +86,14 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给枚举添加注释
      */
     @Override
-    public void addEnumComment(InnerEnum innerEnum, IntrospectedTable introspectedTable) {
+    public void addEnumComment(final InnerEnum innerEnum, final IntrospectedTable introspectedTable) {
     }
 
     /**
      * 给get方法添加注释
      */
     @Override
-    public void addGetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
+    public void addGetterComment(final Method method, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn) {
         addJavadocOfField(method, introspectedTable, introspectedColumn);
     }
 
@@ -99,7 +101,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给set方法添加注释
      */
     @Override
-    public void addSetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
+    public void addSetterComment(final Method method, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn) {
         addJavadocOfField(method, introspectedTable, introspectedColumn);
     }
 
@@ -107,7 +109,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给方法添加注释
      */
     @Override
-    public void addGeneralMethodComment(Method method, IntrospectedTable introspectedTable) {
+    public void addGeneralMethodComment(final Method method, final IntrospectedTable introspectedTable) {
         addJavadocOnlyTag(method);
     }
 
@@ -115,7 +117,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给Java文件添加注释
      */
     @Override
-    public void addJavaFileComment(CompilationUnit compilationUnit) {
+    public void addJavaFileComment(final CompilationUnit compilationUnit) {
 
     }
 
@@ -123,10 +125,10 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 在Mapper的XML文件中给每个元素结点添加注释
      */
     @Override
-    public void addComment(XmlElement xmlElement) {
+    public void addComment(final XmlElement xmlElement) {
         xmlElement.addElement(new TextElement("<!--")); //$NON-NLS-1$
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("  WARNING - "); //$NON-NLS-1$
         sb.append(MergeConstants.NEW_ELEMENT_TAG);
         xmlElement.addElement(new TextElement(sb.toString()));
@@ -139,14 +141,14 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 给Mapper的XML文件添加注释
      */
     @Override
-    public void addRootComment(XmlElement rootElement) {
+    public void addRootComment(final XmlElement rootElement) {
 
     }
 
     /**
      * 添加只有自动生成注解的文档注释
      */
-    private void addJavadocOnlyTag(JavaElement javaElement) {
+    private void addJavadocOnlyTag(final JavaElement javaElement) {
         javaElement.addJavaDocLine("/**");
         addCommentLinesOfTag(javaElement);
         javaElement.addJavaDocLine(" */");
@@ -155,8 +157,8 @@ public class CommentGeneratorEx implements CommentGenerator {
     /**
      * 添加表的文档注释
      */
-    private void addJavadocOfTable(JavaElement javaElement, IntrospectedTable introspectedTable) {
-        String remarks = introspectedTable.getRemarks();
+    private void addJavadocOfTable(final JavaElement javaElement, final IntrospectedTable introspectedTable) {
+        final String remarks = introspectedTable.getRemarks();
 
         javaElement.addJavaDocLine("/**");
 
@@ -164,7 +166,7 @@ public class CommentGeneratorEx implements CommentGenerator {
 
         javaElement.addJavaDocLine("");
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("数据库表: ");
         sb.append(introspectedTable.getFullyQualifiedTable());
         javaElement.addJavaDocLine(sb.toString());
@@ -179,8 +181,8 @@ public class CommentGeneratorEx implements CommentGenerator {
     /**
      * 添加字段的文档注释
      */
-    private void addJavadocOfField(JavaElement javaElement, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
-        String remarks = introspectedColumn.getRemarks();
+    private void addJavadocOfField(final JavaElement javaElement, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn) {
+        final String remarks = introspectedColumn.getRemarks();
 
         javaElement.addJavaDocLine("/**");
 
@@ -188,7 +190,7 @@ public class CommentGeneratorEx implements CommentGenerator {
 
         javaElement.addJavaDocLine("");
 
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("数据库字段: ");
         sb.append(introspectedTable.getFullyQualifiedTable());
         sb.append('.');
@@ -205,10 +207,10 @@ public class CommentGeneratorEx implements CommentGenerator {
     /**
      * 在注释中添加备注的注释行
      */
-    private void addCommentLinesOfRemark(JavaElement javaElement, String remarks) {
+    private void addCommentLinesOfRemark(final JavaElement javaElement, final String remarks) {
         if (!StringUtils.isBlank(remarks)) {
-            String[] remarkLines = remarks.split(System.getProperty("line.separator"));
-            for (String remarkLine : remarkLines) {
+            final String[] remarkLines = remarks.split(System.getProperty("line.separator"));
+            for (final String remarkLine : remarkLines) {
                 javaElement.addJavaDocLine(remarkLine);
             }
         }
@@ -217,8 +219,40 @@ public class CommentGeneratorEx implements CommentGenerator {
     /**
      * 在注释中添加自动生成的注解的注释行
      */
-    private void addCommentLinesOfTag(JavaElement javaElement) {
+    private void addCommentLinesOfTag(final JavaElement javaElement) {
         javaElement.addJavaDocLine(MergeConstants.NEW_ELEMENT_TAG + " 自动生成，如需修改，请删除本行");
+    }
+
+    @Override
+    public void addGeneralMethodAnnotation(final Method method, final IntrospectedTable introspectedTable, final Set<FullyQualifiedJavaType> imports) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addGeneralMethodAnnotation(final Method method, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn,
+            final Set<FullyQualifiedJavaType> imports) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addFieldAnnotation(final Field field, final IntrospectedTable introspectedTable, final Set<FullyQualifiedJavaType> imports) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addFieldAnnotation(final Field field, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn,
+            final Set<FullyQualifiedJavaType> imports) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void addClassAnnotation(final InnerClass innerClass, final IntrospectedTable introspectedTable, final Set<FullyQualifiedJavaType> imports) {
+        // TODO Auto-generated method stub
+
     }
 
 }

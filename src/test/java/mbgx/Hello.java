@@ -32,15 +32,15 @@ public class Hello implements A {
      */
     public Hello() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     /**
      * 构造方法
      * 
      */
-    public Hello(String name) {
+    public Hello(final String name) {
         super();
+        _log.info(String.format("Hello, %s", this.name));
         this.name = name;
     }
 
@@ -48,8 +48,7 @@ public class Hello implements A {
      * 测试hello方法
      */
     @Override
-    public String hello(String name) {
-        // print
+    public String hello(final String name) {
         _log.info(String.format("Hello, %s", name));
         return "ok";
     }
@@ -59,9 +58,9 @@ public class Hello implements A {
      * 
      * @mbg.generated
      */
-    public static void main(String[] args) {
-        Hello hello = new Hello();
-        String world = "world";
+    public static void main(final String[] args) {
+        final Hello hello = new Hello();
+        final String world = "world";
         System.out.println(hello.hello(world));
     }
 

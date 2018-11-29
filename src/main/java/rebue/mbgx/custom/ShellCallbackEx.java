@@ -19,7 +19,7 @@ import rebue.mbgx.util.MergeJavaFileUtil;
  *
  */
 public class ShellCallbackEx extends DefaultShellCallback {
-    public ShellCallbackEx(boolean overwrite) {
+    public ShellCallbackEx(final boolean overwrite) {
         super(overwrite);
     }
 
@@ -29,11 +29,10 @@ public class ShellCallbackEx extends DefaultShellCallback {
     }
 
     @Override
-    public String mergeJavaFile(String newFileSource, String existingFileFullPath, String[] javadocTags, String fileEncoding) throws ShellException {
-        File oldFile = new File(existingFileFullPath);
+    public String mergeJavaFile(final String newFileSource, final File existingFile, final String[] javadocTags, final String fileEncoding) throws ShellException {
         try {
-            return MergeJavaFileUtil.merge(newFileSource, oldFile, javadocTags);
-        } catch (FileNotFoundException e) {
+            return MergeJavaFileUtil.merge(newFileSource, existingFile, javadocTags);
+        } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);
         }
