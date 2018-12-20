@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,42 +43,44 @@ import rebue.mbgx.util.RemarksUtil;
  * @author zbz
  */
 public class CodeGenByBeetlPlugin extends PluginAdapter {
-    private final static Logger _log                     = LoggerFactory.getLogger(CodeGenByBeetlPlugin.class);
+    private final static Logger        _log                     = LoggerFactory.getLogger(CodeGenByBeetlPlugin.class);
 
     /**
      * beetl的配置文件（位于classpath下的路径）
      */
-    private static final String BEETL_CFG_FILE           = "beetlCfgFile";
+    private static final String        BEETL_CFG_FILE           = "beetlCfgFile";
     /**
      * beetl的模板文件（位于模板目录下的路径），多个文件用逗号相隔
      */
-    private static final String BEETL_TEMPLATES_CFG_FILE = "templatesCfgFile";
+    private static final String        BEETL_TEMPLATES_CFG_FILE = "templatesCfgFile";
     /**
      * beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径）
      */
-    private static final String BEETL_MODULE_PATH        = "beetlModulePath";
+    private static final String        BEETL_MODULE_PATH        = "beetlModulePath";
     /**
      * beetl模板生成文件的模块名称（用在模板配置文件中指定jsp/js/css等生成文件的路径）
      */
-    private static final String BEETL_MODULE_NAME        = "beetlModuleName";
+    private static final String        BEETL_MODULE_NAME        = "beetlModuleName";
 
     /**
      * 用来获取beetl模板的groupTemplate
      */
-    private GroupTemplate       groupTemplate;
+    private GroupTemplate              groupTemplate;
 
     /**
      * 模块的包，用来注入模板，获取beetlModulePath后将/替换为.就可以得到
      */
-    private String              modulePackage;
+    private String                     modulePackage;
 
     /**
      * 配置模板
      */
-    private Template            cfgTemplate;
+    private Template                   cfgTemplate;
 
-    private String              _catalog;
-    private DatabaseMetaData    _metaData;
+    /**
+     * 外键的MAP(key为表名)
+     */
+    private final List<ForeignKeyInfo> _foreignKeyList          = new LinkedList<>();
 
     @Override
     public boolean validate(final List<String> paramList) {
@@ -110,12 +113,37 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     private void initJdbcConn() {
         try {
             final JDBCConnectionConfiguration conf = context.getJdbcConnectionConfiguration();
-            // 注册数据库驱动
+            _log.info("注册数据库驱动");
             Class.forName(conf.getDriverClass());
-            // 获取数据库连接
-            final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword());
-            _catalog = conn.getCatalog();
-            _metaData = conn.getMetaData();
+            _log.info("获取数据库连接");
+            try (final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword())) {
+                final String _catalog = conn.getCatalog();
+                final DatabaseMetaData _metaData = conn.getMetaData();
+                final ResultSet tablesResultSet = _metaData.getTables(_catalog, null, null, new String[] { "TABLE" });
+                _log.info("开始遍历表");
+                while (tablesResultSet.next()) {
+                    final String tableName = tablesResultSet.getString("TABLE_NAME");
+                    final ResultSet foreignKeyResultSet = _metaData.getImportedKeys(_catalog, null, tableName);
+                    _log.info("开始遍历{}表的外键", tableName);
+                    while (foreignKeyResultSet.next()) {
+                        final ForeignKeyInfo foreignKey = new ForeignKeyInfo();
+                        foreignKey.setFkTableName(tableName);
+                        foreignKey.setFkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getFkTableName(), true) + "Jo");
+                        foreignKey.setFkFieldName(foreignKeyResultSet.getString("FKCOLUMN_NAME"));
+//                        String fkBeanName = tableName.substring(tableName.indexOf('_') + 1);
+                        final String fkBeanName = JavaBeansUtil.getCamelCaseString(tableName, false);
+                        foreignKey.setFkBeanName(fkBeanName);
+
+                        foreignKey.setPkTableName(foreignKeyResultSet.getString("PKTABLE_NAME"));
+                        foreignKey.setPkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getPkTableName(), true) + "Jo");
+                        foreignKey.setPkFieldName(foreignKeyResultSet.getString("PKCOLUMN_NAME"));
+                        final String pkBeanName = JavaBeansUtil.getCamelCaseString(foreignKey.getFkFieldName(), false);
+                        foreignKey.setPkBeanName(pkBeanName);
+                        _foreignKeyList.add(foreignKey);
+                        _log.debug("foreignKeyInfo: {}", foreignKey);
+                    }
+                }
+            }
         } catch (final ClassNotFoundException | SQLException e) {
             final String msg = "初始化JDBC连接出错";
             _log.error(msg, e);
@@ -199,32 +227,28 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             props.add(propInfo);
         }
 
-        _log.info("4. 获取外键");
-        final List<FeignKeyInfo> feignKeys = new ArrayList<>();
-        try {
-            final ResultSet foreignKeyResultSet = _metaData.getImportedKeys(_catalog, null, tableName);
-            while (foreignKeyResultSet.next()) {
-                final FeignKeyInfo feignKeyInfo = new FeignKeyInfo();
-                feignKeyInfo.setFkFieldName(foreignKeyResultSet.getString("FKCOLUMN_NAME"));
-                feignKeyInfo.setPkTableName(foreignKeyResultSet.getString("PKTABLE_NAME"));
-                feignKeyInfo.setPkFieldName(foreignKeyResultSet.getString("PKCOLUMN_NAME"));
-                feignKeyInfo.setPkClassName(JavaBeansUtil.getCamelCaseString(feignKeyInfo.getPkTableName(), true) + "Jo");
-                final String beanName = JavaBeansUtil.getCamelCaseString(feignKeyInfo.getFkFieldName(), false);
-                feignKeyInfo.setPkBeanName(beanName.substring(0, beanName.length() - 2));
-                // 查找关键字的字段属性，获取是否可空
-                for (final PropInfo prop : props) {
-                    if (prop.getSourceCode().equals(feignKeyInfo.getFkFieldName())) {
-                        feignKeyInfo.setIsNullable(prop.getIsNullable());
-                        break;
+        _log.info("4. 设置外键和关联表");
+        final List<ForeignKeyInfo> fkFks = new LinkedList<>();
+        final List<ForeignKeyInfo> fkPks = new LinkedList<>();
+        for (final ForeignKeyInfo foreignKey : _foreignKeyList) {
+            // 如果是当前表是外键的外键表
+            if (foreignKey.getFkTableName().equals(tableName)) {
+                if (foreignKey.getIsNullable() == null) {
+                    // 查找关键字的字段属性，获取是否可空
+                    for (final PropInfo prop : props) {
+                        if (prop.getSourceCode().equals(foreignKey.getFkFieldName())) {
+                            foreignKey.setIsNullable(prop.getIsNullable());
+                            foreignKey.setTitle(prop.getName());
+                            break;
+                        }
                     }
                 }
-                feignKeys.add(feignKeyInfo);
-                _log.debug("feignKeyInfo: {}", feignKeyInfo);
+                fkFks.add(foreignKey);
             }
-        } catch (final SQLException e) {
-            final String msg = "获取外键出错";
-            _log.error(msg, e);
-            throw new RuntimeException(msg, e);
+            // 如果当前表是外键的主键表
+            else if (foreignKey.getPkTableName().equals(tableName)) {
+                fkPks.add(foreignKey);
+            }
         }
 
         _log.info("类文件注释:{}", topLevelClass.getFileCommentLines());
@@ -235,8 +259,9 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             template.binding("pojo", topLevelClass);
             template.binding("table", introspectedTable);
             template.binding("tableName", tableName);
-            template.binding("feignKeys", feignKeys);
             template.binding("props", props);
+            template.binding("fkFks", fkFks);   // 外键的外键信息列表
+            template.binding("fkPks", fkPks);   // 外键的主键信息列表
             template.binding("modulePackage", modulePackage);
             template.binding("moduleName", properties.getProperty(BEETL_MODULE_NAME));
             template.binding("entityName", entityName);

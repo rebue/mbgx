@@ -3,13 +3,29 @@ package rebue.mbgx.plugin;
 import lombok.Data;
 
 /**
- * 外键信息 CodeGenByBeetlPlugin插件读取数据库信息时，将解析表的外键信息信息保存到这个对象中
+ * 外键信息
+ * CodeGenByBeetlPlugin插件读取数据库信息时，将解析表的外键信息信息保存到这个对象中
  * 
  * @author zbz
  *
  */
 @Data
-public class FeignKeyInfo {
+public class ForeignKeyInfo {
+
+    /**
+     * 本表名称
+     */
+    private String  fkTableName;
+
+    /**
+     * 本表类名
+     */
+    private String  fkClassName;
+
+    /**
+     * 本表Bean变量的名称
+     */
+    private String  fkBeanName;
 
     /**
      * 本表外键字段的名称
@@ -36,6 +52,14 @@ public class FeignKeyInfo {
      */
     private String  pkFieldName;
 
+    /**
+     * 外键是否可空
+     */
     private Boolean isNullable;
+
+    /**
+     * 外键说明的标题
+     */
+    private String  title;
 
 }
