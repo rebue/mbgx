@@ -237,6 +237,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     // 查找关键字的字段属性，获取是否可空
                     for (final PropInfo prop : props) {
                         if (prop.getSourceCode().equals(foreignKey.getFkFieldName())) {
+                            props.remove(prop);
                             foreignKey.setIsNullable(prop.getIsNullable());
                             foreignKey.setTitle(prop.getName());
                             break;
@@ -311,9 +312,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(targetFile), "utf-8")) {
                     osw.write(sTarget);
                 }
-
-//                MergeJavaFileUtil.organizeImports(sTarget, targetFile.getAbsolutePath());
-//            } catch (IOException | OperationCanceledException | MalformedTreeException | CoreException | BadLocationException e) {
             } catch (final IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException(e);
