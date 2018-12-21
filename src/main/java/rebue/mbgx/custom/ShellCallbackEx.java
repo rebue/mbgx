@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
-import rebue.mbgx.util.MergeJavaFileUtil;
+import rebue.mbgx.util.MergeJavaFileUtils;
 
 /**
  * <pre>
@@ -31,7 +31,7 @@ public class ShellCallbackEx extends DefaultShellCallback {
     @Override
     public String mergeJavaFile(final String newFileSource, final File existingFile, final String[] javadocTags, final String fileEncoding) throws ShellException {
         try {
-            return MergeJavaFileUtil.merge(newFileSource, existingFile, javadocTags);
+            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags);
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);

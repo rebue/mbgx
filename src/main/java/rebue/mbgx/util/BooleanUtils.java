@@ -4,7 +4,7 @@ import java.sql.Types;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 
-public class BooleanUtil {
+public class BooleanUtils {
 	/**
 	 * 由于数据库中的字段类型一般没有或不用Boolean型<br>
 	 * 而java的pojo类的属性一般又直接用Boolean定义<br>

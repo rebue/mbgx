@@ -10,7 +10,7 @@ import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElem
 import org.mybatis.generator.config.PropertyRegistry;
 import org.mybatis.generator.internal.util.StringUtility;
 
-import rebue.mbgx.util.BooleanUtil;
+import rebue.mbgx.util.BooleanUtils;
 
 public class SelectSelectiveElementGenerator extends AbstractXmlElementGenerator {
 
@@ -57,7 +57,7 @@ public class SelectSelectiveElementGenerator extends AbstractXmlElementGenerator
             sb.append(introspectedColumn.getJavaProperty());
             sb.append(" != null"); //$NON-NLS-1$
             if (introspectedColumn.getFullyQualifiedJavaType().getFullyQualifiedName().equals("java.lang.String")//
-                    && !BooleanUtil.isBooleanColumn(introspectedColumn)) {
+                    && !BooleanUtils.isBooleanColumn(introspectedColumn)) {
                 sb.append(" and "); //$NON-NLS-1$
                 sb.append(introspectedColumn.getJavaProperty());
                 sb.append(" != ''"); //$NON-NLS-1$

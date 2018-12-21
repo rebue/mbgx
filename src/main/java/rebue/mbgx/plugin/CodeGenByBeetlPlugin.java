@@ -34,8 +34,9 @@ import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSON;
 import com.google.common.io.Files;
 
-import rebue.mbgx.util.MergeJavaFileUtil;
-import rebue.mbgx.util.RemarksUtil;
+import rebue.mbgx.util.JavaSourceUtils;
+import rebue.mbgx.util.MergeJavaFileUtils;
+import rebue.mbgx.util.RemarksUtils;
 
 /**
  * 利用beetl生成代码的插件
@@ -130,7 +131,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                         foreignKey.setFkTableName(tableName);
                         foreignKey.setFkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getFkTableName(), true) + "Jo");
                         foreignKey.setFkFieldName(foreignKeyResultSet.getString("FKCOLUMN_NAME"));
-//                        String fkBeanName = tableName.substring(tableName.indexOf('_') + 1);
                         final String fkBeanName = JavaBeansUtil.getCamelCaseString(tableName, false);
                         foreignKey.setFkBeanName(fkBeanName);
 
@@ -211,7 +211,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             final PropInfo propInfo = new PropInfo();
             propInfo.setCode(field.getName());
             final String fieldRemark = column.getRemarks();
-            propInfo.setName(RemarksUtil.getTitleByRemarks(fieldRemark));
+            propInfo.setName(RemarksUtils.getTitleByRemarks(fieldRemark));
             propInfo.setSourceCode(column.getActualColumnName());
             String typeName = field.getType().getShortName();
             if (typeName.equals("Date")) {
@@ -267,8 +267,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             template.binding("entityName", entityName);
             template.binding("entityNamePrefix", getFirstWord(entityName)); // 实体名称的前缀，一般是系统的简称
             template.binding("entitySimpleName", removeFirstWord(entityName));
-            template.binding("entityTitle", RemarksUtil.getTitleByRemarks(introspectedTable.getRemarks()));
-            template.binding("entityRemarks", RemarksUtil.getSplitJointRemarks(introspectedTable.getRemarks()));
+            template.binding("entityTitle", RemarksUtils.getTitleByRemarks(introspectedTable.getRemarks()));
+            template.binding("entityRemarks", RemarksUtils.getSplitJointRemarks(introspectedTable.getRemarks()));
             template.binding("moClassFullName", topLevelClass.getType().getFullyQualifiedName());
             template.binding("moClassShortName", topLevelClass.getType().getShortName());
             template.binding("idType", idType);
@@ -284,27 +284,30 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             _log.info("6. 将渲染结果输出到文件");
             final File targetFile = new File(templateCfg.getTargetDir(), templateCfg.getTargetFile());
             try {
-                _log.info("6.1. 如果文件存在");
+                _log.info("6.1. 判断目标文件是否存在");
                 if (targetFile.exists()) {
-                    _log.info("6.2. 如果文件内容相同，不用写直接返回");
+                    _log.info("6.2. 目标文件存在");
+                    _log.info("6.2.1 判断如果文件内容相同，不用写直接返回");
                     if (contentEquals(targetFile, sTarget.getBytes("utf-8"))) {
                         return true;
                     }
-                    _log.info("6.3. 按配置要求是否进行备份");
+                    _log.info("6.2.2 按配置要求是否进行备份");
                     if (templateCfg.getBackup()) {
                         Files.copy(targetFile,
                                 new File(targetFile.getCanonicalPath().toString() + "." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))));
                     }
-                    _log.info("6.4. 如果是java文件，那么合并文件");
+                    _log.info("6.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
-                        sTarget = MergeJavaFileUtil.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
                     }
                 } else {
+                    _log.info("6.2. 目标文件不存在");
                     targetFile.getParentFile().mkdirs();
                     targetFile.createNewFile();
+                    sTarget = JavaSourceUtils.removeUnusedImports(sTarget);
                 }
 
-                _log.info("6.5. 输出文件");
+                _log.info("6.3. 输出文件");
                 try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(targetFile), "utf-8")) {
                     osw.write(sTarget);
                 }

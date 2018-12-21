@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import rebue.mbgx.util.MergeJavaFileUtil;
+import rebue.mbgx.util.MergeJavaFileUtils;
 
 public class JavaParseTester {
     private final static Logger _log = LoggerFactory.getLogger(JavaParseTester.class);
@@ -18,7 +18,7 @@ public class JavaParseTester {
     public void Test01() throws IOException {
         String newFileSource = getStringFromFile(getProjectPath() + "/src/test/resources/conf/Hello.btl");
         String existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
-        String mergeText = MergeJavaFileUtil.merge(newFileSource, existingFileFullPath, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+        String mergeText = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
         _log.debug(mergeText);
     }
 

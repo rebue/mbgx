@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RemarksUtil {
-    private final static Logger _log = LoggerFactory.getLogger(RemarksUtil.class);
+public class RemarksUtils {
+    private final static Logger _log = LoggerFactory.getLogger(RemarksUtils.class);
 
     /**
      * 通过备注得到标题（有些标题是名称+（1-xxx,2-xxx），去掉后面的内容来取得名称）

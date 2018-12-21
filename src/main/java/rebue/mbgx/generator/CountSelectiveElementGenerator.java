@@ -8,7 +8,7 @@ import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 import org.mybatis.generator.codegen.mybatis3.MyBatis3FormattingUtilities;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElementGenerator;
 
-import rebue.mbgx.util.BooleanUtil;
+import rebue.mbgx.util.BooleanUtils;
 
 public class CountSelectiveElementGenerator extends AbstractXmlElementGenerator {
 
@@ -52,7 +52,7 @@ public class CountSelectiveElementGenerator extends AbstractXmlElementGenerator 
             sb.append(introspectedColumn.getJavaProperty());
             sb.append(" != null"); //$NON-NLS-1$
             if (introspectedColumn.getFullyQualifiedJavaType().getFullyQualifiedName().equals("java.lang.String")//
-                    && !BooleanUtil.isBooleanColumn(introspectedColumn)) {
+                    && !BooleanUtils.isBooleanColumn(introspectedColumn)) {
                 sb.append(" and "); //$NON-NLS-1$
                 sb.append(introspectedColumn.getJavaProperty());
                 sb.append(" != ''"); //$NON-NLS-1$

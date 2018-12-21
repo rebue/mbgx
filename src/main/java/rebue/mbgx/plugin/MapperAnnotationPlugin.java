@@ -10,7 +10,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import rebue.mbgx.util.RemarksUtil;
+import rebue.mbgx.util.RemarksUtils;
 
 /**
  * 给Mapper类加上@Mapper的插件
@@ -31,7 +31,7 @@ public class MapperAnnotationPlugin extends PluginAdapter {
             IntrospectedTable introspectedTable) {
         _log.info("\n{}\n{}:{}\n{}\n", "-----------------------------------------------",//
                 introspectedTable.getFullyQualifiedTableNameAtRuntime(), //
-                RemarksUtil.getTitleByRemarks(introspectedTable.getRemarks()),//
+                RemarksUtils.getTitleByRemarks(introspectedTable.getRemarks()),//
                 "-----------------------------------------------");
         interfaze.addImportedType(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Mapper"));
         interfaze.addAnnotation("@Mapper");

@@ -9,7 +9,7 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 
-import rebue.mbgx.util.RemarksUtil;
+import rebue.mbgx.util.RemarksUtils;
 
 /**
  * 给Model类加上Swagger注解的插件
@@ -25,7 +25,7 @@ public class SwaggerPlugin extends PluginAdapter {
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
         topLevelClass.addImportedType("io.swagger.annotations.ApiModel");
         topLevelClass.addAnnotation("@ApiModel(value = \"" + topLevelClass.getType().getShortName()
-                + "\", description = " + RemarksUtil.getSplitJointRemarks(introspectedTable.getRemarks()) + ")");
+                + "\", description = " + RemarksUtils.getSplitJointRemarks(introspectedTable.getRemarks()) + ")");
         return true;
     }
 
@@ -34,7 +34,7 @@ public class SwaggerPlugin extends PluginAdapter {
             IntrospectedTable introspectedTable, Plugin.ModelClassType modelClassType) {
         topLevelClass.addImportedType("io.swagger.annotations.ApiModelProperty");
         field.addAnnotation(
-                "@ApiModelProperty(value = " + RemarksUtil.getSplitJointRemarks(introspectedColumn.getRemarks()) + ")");
+                "@ApiModelProperty(value = " + RemarksUtils.getSplitJointRemarks(introspectedColumn.getRemarks()) + ")");
         return true;
     }
 

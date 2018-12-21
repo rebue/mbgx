@@ -6,7 +6,7 @@ import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
 
-import rebue.mbgx.util.BooleanUtil;
+import rebue.mbgx.util.BooleanUtils;
 
 /**
  * 扩展了默认的Java类型解析器<br>
@@ -22,7 +22,7 @@ public class JavaTypeResolverEx extends JavaTypeResolverDefaultImpl {
 			FullyQualifiedJavaType defaultType) {
 		FullyQualifiedJavaType answer = super.overrideDefaultType(column, defaultType);
 
-		if(BooleanUtil.isBooleanColumn(column)) {
+		if(BooleanUtils.isBooleanColumn(column)) {
 			answer = typeMap.get(Types.BOOLEAN).getFullyQualifiedJavaType();
 		}
 		
