@@ -138,7 +138,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                         foreignKey.setPkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getPkTableName(), true) + "Jo");
                         foreignKey.setPkFieldName(foreignKeyResultSet.getString("PKCOLUMN_NAME"));
                         final String pkBeanName = JavaBeansUtil.getCamelCaseString(foreignKey.getFkFieldName(), false);
-                        foreignKey.setPkBeanName(pkBeanName);
+                        foreignKey.setPkBeanName(pkBeanName.substring(0, pkBeanName.length() - 2));
                         _foreignKeyList.add(foreignKey);
                         _log.debug("foreignKeyInfo: {}", foreignKey);
                     }
