@@ -1,5 +1,7 @@
 package rebue.mbgx.plugin;
 
+import lombok.Data;
+
 /**
  * 模板的配置
  * CodeGenByBeetlPlugin插件读取模板的配置，保存于此对象中
@@ -7,6 +9,7 @@ package rebue.mbgx.plugin;
  * @author zbz
  *
  */
+@Data
 public class TemplateCfg {
     /**
      * 模板的名称
@@ -28,45 +31,5 @@ public class TemplateCfg {
      * 中间表是否生成目标文件
      */
     private Boolean isGenTargetOnMiddleTable;
-
-    public String getTemplateName() {
-        return templateName;
-    }
-
-    public void setTemplateName(String templateName) {
-        this.templateName = templateName;
-    }
-
-    public String getTargetDir() {
-        return targetDir;
-    }
-
-    public void setTargetDir(String targetDir) {
-        this.targetDir = targetDir;
-    }
-
-    public String getTargetFile() {
-        return targetFile;
-    }
-
-    public void setTargetFile(String targetFile) {
-        this.targetFile = targetFile;
-    }
-
-    public Boolean getBackup() {
-        return backup;
-    }
-
-    public void setBackup(Boolean backup) {
-        this.backup = backup;
-    }
-
-    public Boolean getIsGenTargetOnMiddleTable() {
-        return isGenTargetOnMiddleTable;
-    }
-
-    public void setIsGenTargetOnMiddleTable(Boolean isGenTargetOnMiddleTable) {
-        this.isGenTargetOnMiddleTable = isGenTargetOnMiddleTable;
-    }
 
 }

@@ -53,13 +53,18 @@ public class ForeignKeyInfo {
     private String  pkFieldName;
 
     /**
+     * 外键说明的标题
+     */
+    private String  title;
+
+    /**
      * 外键是否可空
      */
     private Boolean isNullable;
 
     /**
-     * 外键说明的标题
+     * 外键的外键表是否是中间表
      */
-    private String  title;
+    private Boolean isMiddleTableOnFk;
 
 }
