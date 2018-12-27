@@ -22,12 +22,12 @@ import org.mybatis.generator.config.MergeConstants;
 /**
  * 自定义的注释生成器
  * 
- * 启用方式：在mbg的xml配置文件中如下:
+ * 启用方式：在mbg的xml配置文件中如下:<br>
  * 
- * <commentGenerator type="rebue.mbgx.generator.MyCommentGenerator">
- * ....
- * ....
- * </commentGenerator>
+ * &lt;commentGenerator type="rebue.mbgx.generator.MyCommentGenerator"&gt;<br>
+ * ....<br>
+ * ....<br>
+ * &lt;/commentGenerator&gt;
  * 
  * @author zbz
  *
