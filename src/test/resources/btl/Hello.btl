@@ -67,6 +67,9 @@ public class Hello {
      * @mbg.generated
      */
     public static void main(String[] args) {
+    	System.out.println("<&
+        	print(kebab('helloWorld'));
+		&>");
         Arrays.toString(new String[1]);
         HelloTemplate hello = new HelloTemplate();
         String world = "world";

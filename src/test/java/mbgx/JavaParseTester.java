@@ -5,6 +5,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import org.beetl.core.Configuration;
+import org.beetl.core.GroupTemplate;
+import org.beetl.core.Template;
+import org.beetl.core.resource.ClasspathResourceLoader;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +18,24 @@ import rebue.mbgx.util.MergeJavaFileUtils;
 public class JavaParseTester {
     private final static Logger _log = LoggerFactory.getLogger(JavaParseTester.class);
 
+    /**
+     * 通过conf/Hello.btl模板文件，与Hello.java文件内容合并，打印出合并后的内容
+     */
     @Test
     public void Test01() throws IOException {
-        String newFileSource = getStringFromFile(getProjectPath() + "/src/test/resources/conf/Hello.btl");
-        String existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
-        String mergeText = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+        // 初始化代码
+        final ClasspathResourceLoader resourceLoader = new ClasspathResourceLoader();
+        final Configuration cfg = Configuration.defaultConfiguration();
+        final GroupTemplate gt = new GroupTemplate(resourceLoader, cfg);
+        // 获取模板
+        final Template t = gt.getTemplate("Hello.btl");
+//        t.binding("name", "beetl");
+        // 渲染结果
+        final String newFileSource = t.render();
+
+        final String existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
+        final String mergeText = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath,
+                new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
         _log.debug(mergeText);
     }
 
@@ -29,14 +46,14 @@ public class JavaParseTester {
         return System.getProperty("user.dir");
     }
 
-    public static String getStringFromFile(String filePath) throws IOException {
+    public static String getStringFromFile(final String filePath) throws IOException {
         return new String(getBytesFromFile(filePath), "utf-8");
     }
 
-    public static byte[] getBytesFromFile(String filePath) throws IOException {
-        File file = new File(filePath);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        byte[] data = new byte[(int) file.length()];
+    public static byte[] getBytesFromFile(final String filePath) throws IOException {
+        final File file = new File(filePath);
+        final FileInputStream fileInputStream = new FileInputStream(file);
+        final byte[] data = new byte[(int) file.length()];
         try (DataInputStream dataInputStream = new DataInputStream(fileInputStream)) {
             dataInputStream.readFully(data);
         }

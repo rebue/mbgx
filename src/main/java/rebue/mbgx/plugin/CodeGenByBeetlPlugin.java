@@ -74,11 +74,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     private String                     _modulePackage;
 
     /**
-     * 配置模板
-     */
-    private Template                   _cfgTemplate;
-
-    /**
      * 中间表的List(item为表名字符串)
      */
     private final List<String>         _middleTableList         = new LinkedList<>();
@@ -89,25 +84,22 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
     @Override
     public boolean validate(final List<String> paramList) {
-        if (_cfgTemplate == null) {
-            try {
-                _log.info("1. 取beetl的配置");
-                Configuration cfg;
-                cfg = new Configuration();
-                final String beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
-                if (beetlCfgFile != null) {
-                    cfg.add(beetlCfgFile);
-                }
-                _log.info("2. 通过配置生成GroupTemplate的实例，用来获取模板");
-                _groupTemplate = new GroupTemplate(cfg);
-                _log.info("3. 获取需要生成代码的模板的配置模板");
-                getCfgTemplate();
-                _log.info("4. 初始化JDBC连接");
-                initJdbcConn();
-            } catch (final IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
+        try {
+            _log.info("1. 取beetl的配置");
+            final Configuration cfg = new Configuration();
+            final String beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
+            if (beetlCfgFile != null) {
+                cfg.add(beetlCfgFile);
             }
+            _log.info("2. 通过配置生成GroupTemplate的实例，用来获取模板");
+            _groupTemplate = new GroupTemplate(cfg);
+//                _log.info("3. 获取需要生成代码的模板的配置模板");
+//                getCfgTemplate();
+            _log.info("4. 初始化JDBC连接");
+            initJdbcConn();
+        } catch (final IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return true;
     }
@@ -169,22 +161,28 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * 获取需要生成代码的模板的配置模板
      */
-    private void getCfgTemplate() throws IOException {
-        // 1.先取beelt的模板的配置文件路径
-        final String templatesCfgFile = properties.getProperty(BEETL_TEMPLATES_CFG_FILE);
-        if (templatesCfgFile == null || templatesCfgFile.trim().isEmpty()) {
-            throw new RuntimeException("没有配置“" + BEETL_TEMPLATES_CFG_FILE + "”选项");
+    private Template getCfgTemplate() {
+        try {
+            // 1.先取beelt的模板的配置文件路径
+            final String templatesCfgFile = properties.getProperty(BEETL_TEMPLATES_CFG_FILE);
+            if (templatesCfgFile == null || templatesCfgFile.trim().isEmpty()) {
+                throw new RuntimeException("没有配置“" + BEETL_TEMPLATES_CFG_FILE + "”选项");
+            }
+            // 2.通过beetl获取配置模板
+            final GroupTemplate groupTemplate = new GroupTemplate(Configuration.defaultConfiguration());
+            final Template cfgTemplate = groupTemplate.getTemplate(templatesCfgFile);
+            // 3.读取beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径），并注入到配置模板中
+            final String beetlModulePath = properties.getProperty(BEETL_MODULE_PATH);
+            cfgTemplate.binding("modulePath", beetlModulePath);
+            // 4.计算出模块的包，准备在需要生成代码的模板中注入
+            _modulePackage = beetlModulePath.replace('/', '.');
+            // 5.读取beetl模板生成文件的模块名称（用在模板配置文件中指定jsp/js/css等生成文件的路径），准备在需要生成代码的模板中注入
+            cfgTemplate.binding("moduleName", properties.getProperty(BEETL_MODULE_NAME));
+            return cfgTemplate;
+        } catch (final IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        // 2.通过beetl获取配置模板
-        final GroupTemplate groupTemplate = new GroupTemplate(Configuration.defaultConfiguration());
-        _cfgTemplate = groupTemplate.getTemplate(templatesCfgFile);
-        // 3.读取beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径），并注入到配置模板中
-        final String beetlModulePath = properties.getProperty(BEETL_MODULE_PATH);
-        _cfgTemplate.binding("modulePath", beetlModulePath);
-        // 4.计算出模块的包，准备在需要生成代码的模板中注入
-        _modulePackage = beetlModulePath.replace('/', '.');
-        // 5.读取beetl模板生成文件的模块名称（用在模板配置文件中指定jsp/js/css等生成文件的路径），准备在需要生成代码的模板中注入
-        _cfgTemplate.binding("moduleName", properties.getProperty(BEETL_MODULE_NAME));
     }
 
     @Override
@@ -197,11 +195,14 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         _log.info("1. 通过配置模板获取生成代码模板的配置参数");
         // 1.1.获取当前表的实体类简称并注入配置模板
         final String entityName = JavaBeansUtil.getCamelCaseString(tableName, true);
-        _cfgTemplate.binding("entityName", entityName);
-        _cfgTemplate.binding("entitySimpleName", removeFirstWord(entityName));
-        // 1.2.返回配置模板的渲染结果
-        final String json = _cfgTemplate.render();
-        // 1.3.解析模板的配置（json格式）
+        // 1.2.获取需要生成代码的模板的配置模板
+        final Template cfgTemplate = getCfgTemplate();
+        // 1.3.注入参数到配置模板
+        cfgTemplate.binding("entityName", entityName);
+        cfgTemplate.binding("entitySimpleName", removeFirstWord(entityName));
+        // 1.4.返回配置模板的渲染结果
+        final String json = cfgTemplate.render();
+        // 1.5.解析模板的配置（json格式）
         final List<TemplateCfg> templateCfgs = JSON.parseArray(json, TemplateCfg.class);// 注意TemplateCfg不能是内部类
 
         _log.info("2. 获取ID类型,(String,Long,Array-组合主键)");
