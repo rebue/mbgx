@@ -7,7 +7,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
@@ -26,7 +26,7 @@ public class JavaSourceUtils {
      * @return 优化处理后的代码内容
      */
     public static String removeUnusedImports(final String sourceCode) {
-        final CompilationUnit compilationUnit = JavaParser.parse(sourceCode);
+        final CompilationUnit compilationUnit = StaticJavaParser.parse(sourceCode);
 
         // 先清空imports，避免查询节点的时候查到就不能判断是否使用过了
         final NodeList<ImportDeclaration> oldImports = compilationUnit.getImports();

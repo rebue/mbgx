@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.javaparser.JavaParser;
+import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
@@ -62,8 +62,8 @@ public class MergeJavaFileUtils {
      */
     public static String merge(final String newFileSource, final File existingFile, final String[] javadocTags) throws FileNotFoundException {
         _log.info("将已存在的Java文件中的手工添加的部分合并进新模板的Java代码中: 已存在的文件-{}", existingFile.getAbsolutePath());
-        final CompilationUnit newCompilationUnit = JavaParser.parse(newFileSource);
-        final CompilationUnit existingCompilationUnit = JavaParser.parse(existingFile);
+        final CompilationUnit newCompilationUnit = StaticJavaParser.parse(newFileSource);
+        final CompilationUnit existingCompilationUnit = StaticJavaParser.parse(existingFile);
         return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTags);
     }
 
