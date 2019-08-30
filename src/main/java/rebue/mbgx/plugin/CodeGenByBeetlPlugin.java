@@ -227,8 +227,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             final Field field = topLevelClass.getFields().get(i);
             final PropInfo propInfo = new PropInfo();
             propInfo.setCode(field.getName());
-            final String fieldRemark = column.getRemarks();
-            propInfo.setName(RemarksUtils.getTitleByRemarks(fieldRemark));
+            propInfo.setRemark(column.getRemarks());
+            propInfo.setName(RemarksUtils.getTitleByRemarks(propInfo.getRemark()));
             propInfo.setSourceCode(column.getActualColumnName());
             String typeName = field.getType().getShortName();
             if (typeName.equals("Date")) {
