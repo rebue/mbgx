@@ -259,8 +259,11 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                             // 获取是否可空
                             foreignKey.setIsNullable(prop.getIsNullable());
                             // 获取字段标题
-                            final String title = prop.getName();
-                            foreignKey.setTitle(title.substring(0, title.length() - 2));
+                            String title = prop.getName();
+                            if (title.endsWith("ID")) {
+                                title = title.substring(0, title.length() - 2);
+                            }
+                            foreignKey.setTitle(title);
                             // 外键的外键表是否是中间表
                             foreignKey.setIsMiddleTableOnFk(_middleTableList.contains(foreignKey.getFkTableName()));
                             break;
