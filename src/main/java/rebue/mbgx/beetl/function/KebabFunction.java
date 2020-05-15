@@ -5,7 +5,7 @@ import org.beetl.core.Function;
 
 /**
  * 将驼峰格式转换为羊肉串格式
- * 例如：helloWorld -> hello-world
+ * 例如：helloWorld 变成 hello-world
  * 
  * @author zbz
  *
@@ -18,8 +18,8 @@ public class KebabFunction implements Function {
             final String msg = "参数不正确(String)";
             throw new IllegalArgumentException(msg);
         }
-        final String str = (String) paras[0];
-        final StringBuilder sb = new StringBuilder();
+        final String        str = (String) paras[0];
+        final StringBuilder sb  = new StringBuilder();
         for (int i = 0; i < str.length(); i++) {
             final char ch = str.charAt(i);
             if (Character.isUpperCase(ch)) {
