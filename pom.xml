@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.github.rebue.common-pom</groupId>
-		<artifactId>common-dependencies</artifactId>
-		<version>1.1.0</version>
+		<artifactId>common-pom</artifactId>
+		<version>1.2.0</version>
 	</parent>
 
 	<groupId>com.github.rebue.mbgx</groupId>
