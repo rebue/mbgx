@@ -6,3 +6,10 @@ logs
 pom.xml.versionsBackup
 rebel.xml
 .DS_Store
+.gradle
+gradle
+build.grdle
+gradlew
+gradlew.bat
+settings.gradle
+
