@@ -1,72 +1,73 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.github.rebue.common-pom</groupId>
-		<artifactId>common-pom</artifactId>
-		<version>1.2.0</version>
-	</parent>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.github.rebue.common-pom</groupId>
+        <artifactId>common-pom</artifactId>
+        <version>1.2.0</version>
+    </parent>
 
-	<groupId>com.github.rebue.mbgx</groupId>
-	<artifactId>mbgx</artifactId>
-	<description>MyBatis自动生成代码的扩展工具</description>
+    <groupId>com.github.rebue.mbgx</groupId>
+    <artifactId>mbgx</artifactId>
+    <description>MyBatis自动生成代码的扩展工具</description>
 
 
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
+    <dependencies>
+        <!-- mybatis自动生成 -->
+        <dependency>
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-core</artifactId>
+        </dependency>
 
-		<!-- mybatis自动生成 -->
-		<dependency>
-			<groupId>org.mybatis.generator</groupId>
-			<artifactId>mybatis-generator-core</artifactId>
-		</dependency>
+        <!-- MBG用来读取json格式的配置文件 -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
 
-		<!-- MBG用来读取json格式的配置文件 -->
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-		</dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
+        <!-- 模板 -->
+        <dependency>
+            <groupId>com.ibeetl</groupId>
+            <artifactId>beetl</artifactId>
+        </dependency>
 
-		<!-- 模板 -->
-		<dependency>
-			<groupId>com.ibeetl</groupId>
-			<artifactId>beetl</artifactId>
-		</dependency>
+        <!-- 解析java源文件的库 -->
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-symbol-solver-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.javaparser</groupId>
+            <artifactId>javaparser-core</artifactId>
+        </dependency>
 
-		<!-- 解析java源文件的库 -->
-		<dependency>
-			<groupId>com.github.javaparser</groupId>
-			<artifactId>javaparser-symbol-solver-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.github.javaparser</groupId>
-			<artifactId>javaparser-core</artifactId>
-		</dependency>
+        <!-- ↓↓↓↓↓↓↓↓↓↓ 日志框架log4j2 ↓↓↓↓↓↓↓↓↓↓ -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <!-- 桥接：告诉Slf4j使用Log4j2 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <!-- ↑↑↑↑↑↑↑↑↑↑ 日志框架log4j2 ↑↑↑↑↑↑↑↑↑↑ -->
 
-		<!-- ↓↓↓↓↓↓↓↓↓↓ 日志框架log4j2 ↓↓↓↓↓↓↓↓↓↓ -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-		</dependency>
-		<!-- 桥接：告诉Slf4j使用Log4j2 -->
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-		</dependency>
-		<!-- ↑↑↑↑↑↑↑↑↑↑ 日志框架log4j2 ↑↑↑↑↑↑↑↑↑↑ -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>
