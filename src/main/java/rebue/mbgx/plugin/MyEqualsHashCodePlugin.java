@@ -217,12 +217,16 @@ public class MyEqualsHashCodePlugin extends PluginAdapter {
                 sb.append("()))"); //$NON-NLS-1$
             }
 
-            if (!iter.hasNext()) {
-                sb.append(';');
-            }
+
+// XXX MBG : MyEqualsHashCodePlugin : 不在循环内给末尾添加分号
+//            if (!iter.hasNext()) {
+//                sb.append(';');
+//            }
 
             method.addBodyLine(sb.toString());
         }
+        // XXX MBG : MyEqualsHashCodePlugin : 在循环外给末尾添加分号
+        method.addBodyLine(";");
 
         topLevelClass.addMethod(method);
     }

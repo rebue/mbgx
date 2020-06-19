@@ -1,22 +1,7 @@
 package rebue.mbgx.plugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import com.alibaba.fastjson.JSON;
+import com.google.common.io.Files;
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
@@ -30,57 +15,62 @@ import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.alibaba.fastjson.JSON;
-import com.google.common.io.Files;
-
 import rebue.mbgx.util.JavaSourceUtils;
 import rebue.mbgx.util.MergeJavaFileUtils;
+import rebue.mbgx.util.PathUtils;
 import rebue.mbgx.util.RemarksUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * 利用beetl生成代码的插件
- * 
+ *
  * @author zbz
  */
 public class CodeGenByBeetlPlugin extends PluginAdapter {
-    private final static Logger        _log                     = LoggerFactory.getLogger(CodeGenByBeetlPlugin.class);
+    private final static Logger _log = LoggerFactory.getLogger(CodeGenByBeetlPlugin.class);
 
     /**
      * beetl的配置文件（位于classpath下的路径）
      */
-    private static final String        BEETL_CFG_FILE           = "beetlCfgFile";
+    private static final String BEETL_CFG_FILE = "beetlCfgFile";
     /**
      * beetl的模板文件（位于模板目录下的路径），多个文件用逗号相隔
      */
-    private static final String        BEETL_TEMPLATES_CFG_FILE = "templatesCfgFile";
+    private static final String BEETL_TEMPLATES_CFG_FILE = "templatesCfgFile";
     /**
      * beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径）
      */
-    private static final String        BEETL_MODULE_PATH        = "beetlModulePath";
+    private static final String BEETL_MODULE_PATH = "beetlModulePath";
     /**
      * beetl模板生成文件的模块名称（用在模板配置文件中指定jsp/js/css等生成文件的路径）
      */
-    private static final String        BEETL_MODULE_NAME        = "beetlModuleName";
-
-    /**
-     * 用来获取beetl模板的groupTemplate
-     */
-    private GroupTemplate              _groupTemplate;
-
-    /**
-     * 模块的包，用来注入模板，获取beetlModulePath后将/替换为.就可以得到
-     */
-    private String                     _modulePackage;
-
+    private static final String BEETL_MODULE_NAME = "beetlModuleName";
     /**
      * 中间表的List(item为表名字符串)
      */
-    private final List<String>         _middleTableList         = new LinkedList<>();
+    private final List<String> _middleTableList = new LinkedList<>();
     /**
      * 外键的List
      */
-    private final List<ForeignKeyInfo> _foreignKeyList          = new LinkedList<>();
+    private final List<ForeignKeyInfo> _foreignKeyList = new LinkedList<>();
+    /**
+     * 用来获取beetl模板的groupTemplate
+     */
+    private GroupTemplate _groupTemplate;
+    /**
+     * 模块的包，用来注入模板，获取beetlModulePath后将/替换为.就可以得到
+     */
+    private String _modulePackage;
 
     @Override
     public boolean validate(final List<String> paramList) {
@@ -113,10 +103,12 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             _log.info("注册数据库驱动");
             Class.forName(conf.getDriverClass());
             _log.info("获取数据库连接");
-            try (final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword())) {
+            try (final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(),
+                    conf.getPassword())) {
                 final String catalog = conn.getCatalog();
                 final DatabaseMetaData databaseMetaData = conn.getMetaData();
-                final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[] { "TABLE" });
+                final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null,
+                        new String[]{"TABLE"});
                 _log.info("开始遍历表");
                 while (databaseResultSet.next()) {
                     final String tableName = databaseResultSet.getString("TABLE_NAME");
@@ -133,13 +125,15 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     while (foreignKeyResultSet.next()) {
                         final ForeignKeyInfo foreignKey = new ForeignKeyInfo();
                         foreignKey.setFkTableName(tableName);
-                        foreignKey.setFkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getFkTableName(), true) + "Jo");
+                        foreignKey.setFkClassName(
+                                JavaBeansUtil.getCamelCaseString(foreignKey.getFkTableName(), true) + "Jo");
                         foreignKey.setFkFieldName(foreignKeyResultSet.getString("FKCOLUMN_NAME"));
                         final String fkBeanName = JavaBeansUtil.getCamelCaseString(tableName, false);
                         foreignKey.setFkBeanName(fkBeanName);
 
                         foreignKey.setPkTableName(foreignKeyResultSet.getString("PKTABLE_NAME"));
-                        foreignKey.setPkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getPkTableName(), true) + "Jo");
+                        foreignKey.setPkClassName(
+                                JavaBeansUtil.getCamelCaseString(foreignKey.getPkTableName(), true) + "Jo");
                         foreignKey.setPkFieldName(foreignKeyResultSet.getString("PKCOLUMN_NAME"));
                         final String pkBeanName = JavaBeansUtil.getCamelCaseString(foreignKey.getFkFieldName(), false);
                         foreignKey.setPkBeanName(pkBeanName.substring(0, pkBeanName.length() - 2));
@@ -186,7 +180,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
+    public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass,
+                                                 final IntrospectedTable introspectedTable) {
         final String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
         final boolean isMiddleTable = _middleTableList.contains(tableName);
         _log.info("************************************************************************");
@@ -316,23 +311,28 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             String sTarget = template.render();
 
             _log.info("5.5. 将渲染结果输出到文件");
-            final File targetFile = new File(templateCfg.getTargetDir(), templateCfg.getTargetFile());
+            String targetDir = templateCfg.getTargetDir();
+            if (!PathUtils.isAbsPath(targetDir)) {
+                targetDir = Paths.get(CodeGenByBeetlPlugin.class.getResource("/").getPath(), targetDir).toString();
+            }
+            final File targetFile = new File(targetDir, templateCfg.getTargetFile());
             try {
                 _log.info("5.5.1. 判断目标文件是否存在");
                 if (targetFile.exists()) {
                     _log.info("5.5.2. 目标文件存在");
                     _log.info("5.5.2.1 判断如果文件内容相同，不用写直接返回");
-                    if (contentEquals(targetFile, sTarget.getBytes("utf-8"))) {
+                    if (contentEquals(targetFile, sTarget.getBytes(StandardCharsets.UTF_8))) {
                         return true;
                     }
                     _log.info("5.5.2.2 按配置要求是否进行备份");
                     if (templateCfg.getBackup()) {
-                        Files.copy(targetFile,
-                                new File(targetFile.getCanonicalPath().toString() + "." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))));
+                        Files.copy(targetFile, new File(targetFile.getCanonicalPath() + "."
+                                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))));
                     }
                     _log.info("5.5.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
-                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[]{"@ibatorgenerated",
+                                "@abatorgenerated", "@mbggenerated", "@mbg.generated"});
                     }
                 } else {
                     _log.info("5.5.2. 目标文件不存在");
@@ -342,7 +342,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 }
 
                 _log.info("5.5.3. 输出到文件");
-                try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(targetFile), "utf-8")) {
+                try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(targetFile),
+                        StandardCharsets.UTF_8)) {
                     osw.write(sTarget);
                 }
             } catch (final IOException e) {
@@ -356,13 +357,13 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
     /**
      * 判断是否是中间表（目前根据遍历所有字段属性名，如果都是以Id结尾，那么是中间表，否则只要有一个不是，都不是中间表）
-     * 
+     *
      * @throws SQLException
      */
     private Boolean isMiddleTable(final String tableName, final ResultSet columnResultSet) throws SQLException {
         while (columnResultSet.next()) {
             final String columnName = columnResultSet.getString("COLUMN_NAME");
-            if (!(columnName.equals("ID")) && !columnName.endsWith("_ID")) {
+            if (!columnName.equals("ID") && !columnName.endsWith("_ID")) {
                 return false;
             }
         }
@@ -383,8 +384,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 //    }
 
     /**
-     * @param sCamelCase
-     *            要处理的字符串（必须按驼峰的命名风格）
+     * @param sCamelCase 要处理的字符串（必须按驼峰的命名风格）
      * @return 得到第一个单词
      */
     private Object getFirstWord(final String sCamelCase) {
@@ -399,8 +399,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     }
 
     /**
-     * @param sCamelCase
-     *            要处理的字符串（必须按驼峰的命名风格）
+     * @param sCamelCase 要处理的字符串（必须按驼峰的命名风格）
      * @return 去掉第一个单词
      */
     private String removeFirstWord(final String sCamelCase) {
@@ -416,11 +415,9 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
     /**
      * TODO MBG : 比较两个文件的内容是否相同
-     * 
-     * @param file1
-     *            第一个文件
-     * @param file2
-     *            第二个文件的字节
+     *
+     * @param file1 第一个文件
+     * @param file2 第二个文件的字节
      * @return
      */
     private boolean contentEquals(final File file1, final byte[] file2) {
