@@ -17,7 +17,7 @@ public class ExistSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method();
+        Method method = new Method("existSelective");
         method.setVisibility(JavaVisibility.PUBLIC);
 
         FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
@@ -27,7 +27,6 @@ public class ExistSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
         returnType.addTypeArgument(listType);
 
         method.setReturnType(FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-        method.setName("existSelective");
 
         method.addParameter(new Parameter(listType, "record"));
 

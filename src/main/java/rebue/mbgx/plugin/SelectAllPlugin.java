@@ -1,16 +1,15 @@
 package rebue.mbgx.plugin;
 
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.SelectAllMethodGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElementGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.SimpleSelectAllElementGenerator;
+
+import java.util.List;
 
 /**
  * <pre>
@@ -18,7 +17,7 @@ import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.SimpleSelectAll
  * 在配置context的属性targetRuntime="MyBatis3"的方式下
  * 并不会生成selectAll方法，本插件补充上这个方法
  * </pre>
- * 
+ *
  * @author zbz
  */
 public class SelectAllPlugin extends PluginAdapter {
@@ -29,13 +28,12 @@ public class SelectAllPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         AbstractJavaMapperMethodGenerator methodGenerator = new SelectAllMethodGenerator();
         methodGenerator.setContext(context);
         methodGenerator.setIntrospectedTable(introspectedTable);
         methodGenerator.addInterfaceElements(interfaze);
-        return super.clientGenerated(interfaze, topLevelClass, introspectedTable);
+        return super.clientGenerated(interfaze, introspectedTable);
     }
 
     @Override

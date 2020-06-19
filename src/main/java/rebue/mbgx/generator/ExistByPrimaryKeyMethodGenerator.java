@@ -19,11 +19,10 @@ public class ExistByPrimaryKeyMethodGenerator extends AbstractJavaMapperMethodGe
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method();
+        Method method = new Method("existByPrimaryKey");
         method.setVisibility(JavaVisibility.PUBLIC);
 
         method.setReturnType(FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-        method.setName("existByPrimaryKey");
 
         if (introspectedTable.getRules().generatePrimaryKeyClass()) {
             FullyQualifiedJavaType type = new FullyQualifiedJavaType(introspectedTable.getPrimaryKeyType());

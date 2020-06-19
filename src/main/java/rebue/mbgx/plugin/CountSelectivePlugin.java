@@ -1,22 +1,20 @@
 package rebue.mbgx.plugin;
 
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.api.dom.xml.Document;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
 import org.mybatis.generator.codegen.mybatis3.xmlmapper.elements.AbstractXmlElementGenerator;
-
 import rebue.mbgx.generator.CountSelectiveElementGenerator;
 import rebue.mbgx.generator.CountSelectiveMethodGenerator;
+
+import java.util.List;
 
 /**
  * 给Mapper及其XML文件加上countSelective()方法的插件
  * TODO MBG : 判断如果本element已经被修改过，将不重复生成
- * 
+ *
  * @author zbz
  */
 public class CountSelectivePlugin extends PluginAdapter {
@@ -27,12 +25,12 @@ public class CountSelectivePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         AbstractJavaMapperMethodGenerator methodGenerator = new CountSelectiveMethodGenerator();
         methodGenerator.setContext(context);
         methodGenerator.setIntrospectedTable(introspectedTable);
         methodGenerator.addInterfaceElements(interfaze);
-        return super.clientGenerated(interfaze, topLevelClass, introspectedTable);
+        return super.clientGenerated(interfaze, introspectedTable);
     }
 
     @Override

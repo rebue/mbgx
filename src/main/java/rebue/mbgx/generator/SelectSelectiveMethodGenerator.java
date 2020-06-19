@@ -17,7 +17,7 @@ public class SelectSelectiveMethodGenerator extends AbstractJavaMapperMethodGene
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method();
+        Method method = new Method("selectSelective");
         method.setVisibility(JavaVisibility.PUBLIC);
 
         FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
@@ -26,7 +26,6 @@ public class SelectSelectiveMethodGenerator extends AbstractJavaMapperMethodGene
         importedTypes.add(listType);
         returnType.addTypeArgument(listType);
         method.setReturnType(returnType);
-        method.setName("selectSelective");
 
         method.addParameter(new Parameter(listType, "record"));
 

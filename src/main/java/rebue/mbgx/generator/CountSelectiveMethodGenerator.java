@@ -17,14 +17,13 @@ public class CountSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
 //        importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method();
+        Method method = new Method("countSelective");
         method.setVisibility(JavaVisibility.PUBLIC);
 
         FullyQualifiedJavaType listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
 
         importedTypes.add(listType);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.setName("countSelective");
 
         method.addParameter(new Parameter(listType, "record"));
 

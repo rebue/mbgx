@@ -1,20 +1,18 @@
 package rebue.mbgx.plugin;
 
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import rebue.mbgx.util.RemarksUtils;
+
+import java.util.List;
 
 /**
  * 给Mapper类加上@Mapper的插件
- * 
+ *
  * @author zbz
  */
 public class MapperAnnotationPlugin extends PluginAdapter {
@@ -27,8 +25,7 @@ public class MapperAnnotationPlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         _log.info("\n{}\n{}:{}\n{}\n", "-----------------------------------------------",//
                 introspectedTable.getFullyQualifiedTableNameAtRuntime(), //
                 RemarksUtils.getTitleByRemarks(introspectedTable.getRemarks()),//

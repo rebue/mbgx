@@ -1,17 +1,16 @@
 package rebue.mbgx.plugin;
 
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
+
+import java.util.List;
 
 /**
  * 给Mapper类加上继承的父接口的插件
  * XXX MBG : 注意：此插件只处理表有且仅有一个主键的情况
- * 
+ *
  * @author zbz
  */
 public class MapperRootIntfacePlugin extends PluginAdapter {
@@ -22,8 +21,7 @@ public class MapperRootIntfacePlugin extends PluginAdapter {
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         // 此插件只处理表有且仅有一个主键的情况
         if (introspectedTable.getPrimaryKeyColumns().size() != 1)
             return false;
@@ -41,7 +39,7 @@ public class MapperRootIntfacePlugin extends PluginAdapter {
         parameterType = getPrimaryKeyType(introspectedTable);
         interfaze.addImportedType(parameterType);
         fullyQualifiedJavaType.addTypeArgument(parameterType);
-        
+
         // 继承MybatisBaseMapper
         interfaze.addSuperInterface(fullyQualifiedJavaType);
         return true;
@@ -49,7 +47,7 @@ public class MapperRootIntfacePlugin extends PluginAdapter {
 
     /**
      * 获取主键所对应的Java类型
-     * 
+     *
      * @param introspectedTable
      * @return
      */
