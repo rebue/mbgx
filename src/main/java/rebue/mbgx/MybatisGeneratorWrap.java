@@ -15,8 +15,11 @@ import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
 
+import lombok.extern.slf4j.Slf4j;
+import rebue.mbgx.custom.ProgressCallbackEx;
 import rebue.mbgx.custom.ShellCallbackEx;
 
+@Slf4j
 public class MybatisGeneratorWrap {
     /**
      * @param overwrite
@@ -26,27 +29,38 @@ public class MybatisGeneratorWrap {
      * @param sPropFiles
      *            properties文件的路径，如果有多个，可以用逗号分隔
      */
-    public static void gen(boolean overwrite, String sPropFiles)
+    public static void gen(final boolean overwrite, final String sPropFiles)
             throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
         // 获取类路径（配置文件在此路径下）
-        String sClassPath = MybatisGeneratorWrap.class.getClassLoader().getResource("").getPath();
+        final String sClassPath = MybatisGeneratorWrap.class.getClassLoader().getResource("").getPath();
 
         // 读取属性文件
-        Properties properties = new Properties();
-        for (String sPropFilePath : sPropFiles.split(",")) {
+        final Properties properties = new Properties();
+        for (final String sPropFilePath : sPropFiles.split(",")) {
             try (FileInputStream fileInputStream = new FileInputStream(sClassPath + sPropFilePath)) {
                 properties.load(fileInputStream);
             }
         }
 
-        List<String> warnings = new ArrayList<>();
-        ConfigurationParser parser = new ConfigurationParser(properties, warnings);
-        Configuration config = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
-        ShellCallback callback = new ShellCallbackEx(overwrite);
-        MyBatisGenerator generator = new MyBatisGenerator(config, callback, warnings);
-        generator.generate(null);
+        final List<String> warnings = new ArrayList<>();
+        final ConfigurationParser parser = new ConfigurationParser(properties, warnings);
+        final Configuration config = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
+        final ShellCallback callback = new ShellCallbackEx(overwrite);
+        final MyBatisGenerator generator = new MyBatisGenerator(config, callback, warnings);
+        generator.generate(new ProgressCallbackEx());
 
-        System.out.println("生成Mybatis的文件成功！");
+        if (warnings.size() > 0) {
+            final StringBuilder sb = new StringBuilder();
+            sb.append("\r\n********************************** 请注意: 警告有 ");
+            sb.append(warnings.size());
+            sb.append(" 条 **********************************");
+            for (final String warning : warnings) {
+                sb.append("\r\n");
+                sb.append(warning);
+            }
+            sb.append("\r\n********************************************************************");
+            log.warn(sb.toString());
+        }
     }
 
 }

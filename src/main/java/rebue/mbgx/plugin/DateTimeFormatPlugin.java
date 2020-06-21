@@ -20,65 +20,63 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
  * @author zbz
  */
 public class DateTimeFormatPlugin extends PluginAdapter {
-    private static final String DAY_SUFFIX_PROPERTY  = "daySuffix";
-    private static final String TIME_SUFFIX_PROPERTY = "timeSuffix";
+    private static final String DATE_SUFFIX_PROPERTY     = "dateSuffix";
+    private static final String DATETIME_SUFFIX_PROPERTY = "datetimeSuffix";
 
-    private static String[]     mDaySuffixs;
-    private static String[]     mTimeSuffixs;
+    private static String[]     mDateSuffixs;
+    private static String[]     mDatetimeSuffixs;
 
     @Override
-    public boolean validate(List<String> paramList) {
+    public boolean validate(final List<String> paramList) {
         return true;
     }
 
     @Override
-    public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn,
-            IntrospectedTable introspectedTable, Plugin.ModelClassType modelClassType) {
+    public boolean modelFieldGenerated(final Field field, final TopLevelClass topLevelClass, final IntrospectedColumn introspectedColumn, final IntrospectedTable introspectedTable,
+            final Plugin.ModelClassType modelClassType) {
         if (Types.DATE == introspectedColumn.getJdbcType()) {
             addDateAnnotations(field, topLevelClass);
         } else if (Types.TIMESTAMP == introspectedColumn.getJdbcType()) {
-            if (mDaySuffixs == null) {
-                String suffix = properties.getProperty(DAY_SUFFIX_PROPERTY);
-                mDaySuffixs = suffix != null ? suffix.split(",") : new String[] { "DAY", "_DATE" };
+            if (mDateSuffixs == null) {
+                final String suffix = properties.getProperty(DATE_SUFFIX_PROPERTY);
+                mDateSuffixs = suffix != null ? suffix.split(",") : new String[] { "DAY", "_DATE" };
             }
-            if (mTimeSuffixs == null) {
-                String suffix = properties.getProperty(TIME_SUFFIX_PROPERTY);
-                mTimeSuffixs = suffix != null ? suffix.split(",") : new String[] { "_TIME" };
+            if (mDatetimeSuffixs == null) {
+                final String suffix = properties.getProperty(DATETIME_SUFFIX_PROPERTY);
+                mDatetimeSuffixs = suffix != null ? suffix.split(",") : new String[] { "_DATETIME" };
             }
 
-            if (isEndsWith(introspectedColumn.getActualColumnName(), mDaySuffixs)) {
+            if (isEndsWith(introspectedColumn.getActualColumnName(), mDateSuffixs)) {
                 addDateAnnotations(field, topLevelClass);
-            } else if (isEndsWith(introspectedColumn.getActualColumnName(), mTimeSuffixs)) {
+            } else if (isEndsWith(introspectedColumn.getActualColumnName(), mDatetimeSuffixs)) {
                 addTimeStampAnnotations(field, topLevelClass);
             }
         }
         return true;
     }
 
-    private void addTimeStampAnnotations(Field field, TopLevelClass topLevelClass) {
+    private void addTimeStampAnnotations(final Field field, final TopLevelClass topLevelClass) {
         topLevelClass.addImportedType("org.springframework.format.annotation.DateTimeFormat");
 //        topLevelClass.addImportedType("com.alibaba.fastjson.annotation.JSONField");
         topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
         field.addAnnotation("@DateTimeFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")");
 //        field.addAnnotation("@JSONField(format = \"yyyy-MM-dd HH:mm:ss\")");
         // 由fastjson改为jackson
-        field.addAnnotation(
-                "@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = \"yyyy-MM-dd HH:mm:ss\", timezone = \"GMT+8\")");
+        field.addAnnotation("@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = \"yyyy-MM-dd HH:mm:ss\", timezone = \"GMT+8\")");
     }
 
-    private void addDateAnnotations(Field field, TopLevelClass topLevelClass) {
+    private void addDateAnnotations(final Field field, final TopLevelClass topLevelClass) {
         topLevelClass.addImportedType("org.springframework.format.annotation.DateTimeFormat");
 //        topLevelClass.addImportedType("com.alibaba.fastjson.annotation.JSONField");
         topLevelClass.addImportedType("com.fasterxml.jackson.annotation.JsonFormat");
         field.addAnnotation("@DateTimeFormat(pattern = \"yyyy-MM-dd\")");
 //        field.addAnnotation("@JSONField(format = \"yyyy-MM-dd\")");
         // 由fastjson改为jackson
-        field.addAnnotation(
-                "@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = \"yyyy-MM-dd\", timezone = \"GMT+8\")");
+        field.addAnnotation("@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = \"yyyy-MM-dd\", timezone = \"GMT+8\")");
     }
 
-    private boolean isEndsWith(String str, String[] suffixs) {
-        for (String suffix : suffixs) {
+    private boolean isEndsWith(final String str, final String[] suffixs) {
+        for (final String suffix : suffixs) {
             if (str.endsWith(suffix)) {
                 return true;
             }

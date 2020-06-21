@@ -223,10 +223,12 @@ public class CommentGeneratorEx implements CommentGenerator {
         javaElement.addJavaDocLine(MergeConstants.NEW_ELEMENT_TAG + " 自动生成，如需修改，请删除本行");
     }
 
+    /**
+     * 在一般方法的注释中添加注解(在生成Mapper文件的方法时会调用此方法)
+     */
     @Override
     public void addGeneralMethodAnnotation(final Method method, final IntrospectedTable introspectedTable, final Set<FullyQualifiedJavaType> imports) {
-        // TODO Auto-generated method stub
-
+        addJavadocOnlyTag(method);
     }
 
     @Override
@@ -238,8 +240,7 @@ public class CommentGeneratorEx implements CommentGenerator {
 
     @Override
     public void addFieldAnnotation(final Field field, final IntrospectedTable introspectedTable, final Set<FullyQualifiedJavaType> imports) {
-        // TODO Auto-generated method stub
-
+        addJavadocOnlyTag(field);
     }
 
     @Override
