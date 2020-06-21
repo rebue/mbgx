@@ -7,17 +7,15 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
 
-import rebue.mbgx.generator.SelectSelectiveMethodGenerator;
+import rebue.mbgx.generator.SelectOneMethodGenerator;
 
 /**
- * 给Mapper及其XML文件加上selectSelective()方法的插件
- * 在配置context的属性targetRuntime="MyBatis3"的方式下
- * 并不会生成selectSelective方法，本插件补充上这个方法
+ * 给Mapper类加上selectOne()方法的插件
  * TODO MBG : 判断如果本element已经被修改过，将不重复生成
  *
  * @author zbz
  */
-public class SelectSelectivePlugin extends PluginAdapter {
+public class SelectOnePlugin extends PluginAdapter {
 
     @Override
     public boolean validate(final List<String> paramList) {
@@ -26,7 +24,7 @@ public class SelectSelectivePlugin extends PluginAdapter {
 
     @Override
     public boolean clientGenerated(final Interface interfaze, final IntrospectedTable introspectedTable) {
-        final AbstractJavaMapperMethodGenerator methodGenerator = new SelectSelectiveMethodGenerator();
+        final AbstractJavaMapperMethodGenerator methodGenerator = new SelectOneMethodGenerator();
         methodGenerator.setContext(context);
         methodGenerator.setIntrospectedTable(introspectedTable);
         methodGenerator.addInterfaceElements(interfaze);
