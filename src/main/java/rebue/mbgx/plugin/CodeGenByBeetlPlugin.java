@@ -30,12 +30,11 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.io.Files;
 
+import lombok.extern.slf4j.Slf4j;
 import rebue.mbgx.util.JavaSourceUtils;
 import rebue.mbgx.util.MergeJavaFileUtils;
 import rebue.mbgx.util.PathUtils;
@@ -46,8 +45,8 @@ import rebue.mbgx.util.RemarksUtils;
  *
  * @author zbz
  */
+@Slf4j
 public class CodeGenByBeetlPlugin extends PluginAdapter {
-    private final static Logger        _log                     = LoggerFactory.getLogger(CodeGenByBeetlPlugin.class);
 
     /**
      * beetl的配置文件（位于classpath下的路径）
@@ -85,17 +84,15 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     @Override
     public boolean validate(final List<String> paramList) {
         try {
-            _log.info("1. 取beetl的配置");
+            log.info("1. 取beetl的配置");
             final Configuration cfg = new Configuration();
             final String beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
             if (beetlCfgFile != null) {
                 cfg.add(beetlCfgFile);
             }
-            _log.info("2. 通过配置生成GroupTemplate的实例，用来获取模板");
+            log.info("2. 通过配置生成GroupTemplate的实例，用来获取模板");
             _groupTemplate = new GroupTemplate(cfg);
-//                _log.info("3. 获取需要生成代码的模板的配置模板");
-//                getCfgTemplate();
-            _log.info("3. 初始化JDBC连接");
+            log.info("3. 初始化JDBC连接");
             initJdbcConn();
         } catch (final IOException e) {
             e.printStackTrace();
@@ -110,26 +107,26 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     private void initJdbcConn() {
         try {
             final JDBCConnectionConfiguration conf = context.getJdbcConnectionConfiguration();
-            _log.info("注册数据库驱动");
+            log.info("注册数据库驱动");
             Class.forName(conf.getDriverClass());
-            _log.info("获取数据库连接");
+            log.info("获取数据库连接");
             try (final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword())) {
                 final String catalog = conn.getCatalog();
                 final DatabaseMetaData databaseMetaData = conn.getMetaData();
                 final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[] { "TABLE" });
-                _log.info("开始遍历表");
+                log.info("开始遍历表");
                 while (databaseResultSet.next()) {
                     final String tableName = databaseResultSet.getString("TABLE_NAME");
-                    _log.info("判断{}是否是中间表", tableName);
+                    log.info("判断{}是否是中间表", tableName);
                     final ResultSet columnResultSet = databaseMetaData.getColumns(catalog, null, tableName, null);
                     if (isMiddleTable(tableName, columnResultSet)) {
-                        _log.info("{}是中间表", tableName);
+                        log.info("{}是中间表", tableName);
                         _middleTableList.add(tableName);
                     }
 
-                    _log.info("获取{}表的外键", tableName);
+                    log.info("获取{}表的外键", tableName);
                     final ResultSet foreignKeyResultSet = databaseMetaData.getImportedKeys(catalog, null, tableName);
-                    _log.info("开始遍历{}表的外键", tableName);
+                    log.info("开始遍历{}表的外键", tableName);
                     while (foreignKeyResultSet.next()) {
                         final ForeignKeyInfo foreignKey = new ForeignKeyInfo();
                         foreignKey.setFkTableName(tableName);
@@ -147,13 +144,13 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                         // 先默认设置外键表不是中间表
                         foreignKey.setIsMiddleTableOnFk(false);
                         _foreignKeyList.add(foreignKey);
-                        _log.debug("foreignKeyInfo: {}", foreignKey);
+                        log.debug("foreignKeyInfo: {}", foreignKey);
                     }
                 }
             }
         } catch (final ClassNotFoundException | SQLException e) {
             final String msg = "初始化JDBC连接出错";
-            _log.error(msg, e);
+            log.error(msg, e);
             throw new RuntimeException(msg, e);
         }
     }
@@ -189,7 +186,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
         final String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
         final boolean isMiddleTable = _middleTableList.contains(tableName);
-        _log.info("1. 通过配置模板获取生成代码模板的配置参数");
+        log.info("1. 通过配置模板获取生成代码模板的配置参数");
         // 1.1.获取当前表的实体类简称并注入配置模板
         final String entityName = JavaBeansUtil.getCamelCaseString(tableName, true);
         // 1.2.获取需要生成代码的模板的配置模板
@@ -202,7 +199,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         // 1.5.解析模板的配置（json格式）
         final List<TemplateCfg> templateCfgs = JSON.parseArray(json, TemplateCfg.class);// 注意TemplateCfg不能是内部类
 
-        _log.info("2. 获取ID类型,(String,Long,Array-组合主键)");
+        log.info("2. 获取ID类型,(String,Long,Array-组合主键)");
         String idType = null;
         if (introspectedTable.getPrimaryKeyColumns().size() > 1) {
             idType = "Array";
@@ -217,7 +214,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             }
         }
 
-        _log.info("3. 准备实体的属性信息");
+        log.info("3. 准备实体的属性信息");
         final List<PropInfo> props = new ArrayList<>();
         for (int i = 0; i < introspectedTable.getAllColumns().size(); i++) {
             final IntrospectedColumn column = introspectedTable.getAllColumns().get(i);
@@ -241,7 +238,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             props.add(propInfo);
         }
 
-        _log.info("4. 设置外键和关联表");
+        log.info("4. 设置外键和关联表");
         final List<ForeignKeyInfo> fkFks = new LinkedList<>();
         final List<ForeignKeyInfo> fkPks = new LinkedList<>();
         for (final ForeignKeyInfo foreignKey : _foreignKeyList) {
@@ -275,11 +272,11 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             }
         }
 
-        _log.info("类文件注释:{}", topLevelClass.getFileCommentLines());
+        log.info("类文件注释:{}", topLevelClass.getFileCommentLines());
 
-        _log.info("5. 遍历模板文件配置，建立模板实例、注入参数、渲染结果并输出到文件");
+        log.info("5. 遍历模板文件配置，建立模板实例、注入参数、渲染结果并输出到文件");
         for (final TemplateCfg templateCfg : templateCfgs) {
-            _log.debug("5.1. 根据配置要求判断中间表是否生成目标文件(默认不生成)");
+            log.debug("5.1. 根据配置要求判断中间表是否生成目标文件(默认不生成)");
             Boolean isGenTargetOnMiddleTable = templateCfg.getIsGenTargetOnMiddleTable();
             if (isGenTargetOnMiddleTable == null) {
                 isGenTargetOnMiddleTable = false;
@@ -288,9 +285,9 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 continue;
             }
 
-            _log.debug("5.2. 建立模板实例");
+            log.debug("5.2. 建立模板实例");
             final Template template = _groupTemplate.getTemplate(templateCfg.getTemplateName());
-            _log.debug("5.3. 注入参数");
+            log.debug("5.3. 注入参数");
             template.binding("isGenTargetOnMiddleTable", isGenTargetOnMiddleTable); // 中间表是否生成目标文件
             template.binding("pojo", topLevelClass);
             template.binding("table", introspectedTable);
@@ -309,39 +306,39 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             template.binding("moClassShortName", topLevelClass.getType().getShortName());
             template.binding("idType", idType);
             template.binding("ids", ids);
-            _log.debug("5.4. 渲染结果");
+            log.debug("5.4. 渲染结果");
             String sTarget = template.render();
 
-            _log.info("5.5. 将渲染结果输出到文件");
+            log.info("5.5. 将渲染结果输出到文件");
             String targetDir = templateCfg.getTargetDir();
             if (!PathUtils.isAbsPath(targetDir)) {
                 targetDir = Paths.get(CodeGenByBeetlPlugin.class.getResource("/").getPath(), targetDir).toString();
             }
             final File targetFile = new File(targetDir, templateCfg.getTargetFile());
             try {
-                _log.info("5.5.1. 判断目标文件是否存在");
+                log.info("5.5.1. 判断目标文件是否存在");
                 if (targetFile.exists()) {
-                    _log.info("5.5.2. 目标文件存在");
-                    _log.info("5.5.2.1 判断如果文件内容相同，不用写直接返回");
+                    log.info("5.5.2. 目标文件存在");
+                    log.info("5.5.2.1 判断如果文件内容相同，不用写直接返回");
                     if (contentEquals(targetFile, sTarget.getBytes(StandardCharsets.UTF_8))) {
                         return true;
                     }
-                    _log.info("5.5.2.2 按配置要求是否进行备份");
+                    log.info("5.5.2.2 按配置要求是否进行备份");
                     if (templateCfg.getBackup()) {
                         Files.copy(targetFile, new File(targetFile.getCanonicalPath() + "." + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))));
                     }
-                    _log.info("5.5.2.3 如果是java文件，那么合并文件");
+                    log.info("5.5.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
                         sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
                     }
                 } else {
-                    _log.info("5.5.2. 目标文件不存在");
+                    log.info("5.5.2. 目标文件不存在");
                     targetFile.getParentFile().mkdirs();
                     targetFile.createNewFile();
                     sTarget = JavaSourceUtils.removeUnusedImports(sTarget);
                 }
 
-                _log.info("5.5.3. 输出到文件");
+                log.info("5.5.3. 输出到文件");
                 try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(targetFile), StandardCharsets.UTF_8)) {
                     osw.write(sTarget);
                 }
@@ -356,8 +353,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
     /**
      * 判断是否是中间表（目前根据遍历所有字段属性名，如果都是以Id结尾，那么是中间表，否则只要有一个不是，都不是中间表）
-     *
-     * @throws SQLException
      */
     private Boolean isMiddleTable(final String tableName, final ResultSet columnResultSet) throws SQLException {
         while (columnResultSet.next()) {
@@ -368,19 +363,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         }
         return true;
     }
-
-//    /**
-//     * 判断是否是中间表（目前根据遍历所有字段属性名，如果都是以Id结尾，那么是中间表，否则只要有一个不是，都不是中间表）
-//     */
-//    private Boolean isMiddleTable(final TopLevelClass topLevelClass) {
-//        for (final Field field : topLevelClass.getFields()) {
-//            if (!(field.getName().equals("id")) && !field.getName().endsWith("Id") && !(field.getName().equals("serialVersionUID"))) {
-//                return false;
-//            }
-//        }
-//        _log.info("中间表的类: {}", topLevelClass.getType().getShortName());
-//        return true;
-//    }
 
     /**
      * @param sCamelCase
