@@ -1,24 +1,8 @@
 package rebue.mbgx.plugin;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import com.alibaba.fastjson.JSON;
+import com.google.common.io.Files;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
@@ -30,15 +14,21 @@ import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-
-import com.alibaba.fastjson.JSON;
-import com.google.common.io.Files;
-
-import lombok.extern.slf4j.Slf4j;
 import rebue.mbgx.util.JavaSourceUtils;
 import rebue.mbgx.util.MergeJavaFileUtils;
 import rebue.mbgx.util.PathUtils;
 import rebue.mbgx.util.RemarksUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * 利用beetl生成代码的插件
@@ -51,35 +41,35 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * beetl的配置文件（位于classpath下的路径）
      */
-    private static final String        BEETL_CFG_FILE           = "beetlCfgFile";
+    private static final String BEETL_CFG_FILE = "beetlCfgFile";
     /**
      * beetl的模板文件（位于模板目录下的路径），多个文件用逗号相隔
      */
-    private static final String        BEETL_TEMPLATES_CFG_FILE = "templatesCfgFile";
+    private static final String BEETL_TEMPLATES_CFG_FILE = "templatesCfgFile";
     /**
      * beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径）
      */
-    private static final String        BEETL_MODULE_PATH        = "beetlModulePath";
+    private static final String BEETL_MODULE_PATH = "beetlModulePath";
     /**
      * beetl模板生成文件的模块名称（用在模板配置文件中指定jsp/js/css等生成文件的路径）
      */
-    private static final String        BEETL_MODULE_NAME        = "beetlModuleName";
+    private static final String BEETL_MODULE_NAME = "beetlModuleName";
     /**
      * 中间表的List(item为表名字符串)
      */
-    private final List<String>         _middleTableList         = new LinkedList<>();
+    private final List<String> _middleTableList = new LinkedList<>();
     /**
      * 外键的List
      */
-    private final List<ForeignKeyInfo> _foreignKeyList          = new LinkedList<>();
+    private final List<ForeignKeyInfo> _foreignKeyList = new LinkedList<>();
     /**
      * 用来获取beetl模板的groupTemplate
      */
-    private GroupTemplate              _groupTemplate;
+    private GroupTemplate _groupTemplate;
     /**
      * 模块的包，用来注入模板，获取beetlModulePath后将/替换为.就可以得到
      */
-    private String                     _modulePackage;
+    private String _modulePackage;
 
     @Override
     public boolean validate(final List<String> paramList) {
@@ -113,7 +103,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             try (final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword())) {
                 final String catalog = conn.getCatalog();
                 final DatabaseMetaData databaseMetaData = conn.getMetaData();
-                final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[] { "TABLE" });
+                final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[]{"TABLE"});
                 log.info("开始遍历表");
                 while (databaseResultSet.next()) {
                     final String tableName = databaseResultSet.getString("TABLE_NAME");
@@ -312,7 +302,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             log.info("5.5. 将渲染结果输出到文件");
             String targetDir = templateCfg.getTargetDir();
             if (!PathUtils.isAbsPath(targetDir)) {
-                targetDir = Paths.get(CodeGenByBeetlPlugin.class.getResource("/").getPath(), targetDir).toString();
+                String rootPath = Paths.get(CodeGenByBeetlPlugin.class.getResource("/").getPath()).getParent().getParent().getParent().toAbsolutePath().toString();
+                targetDir = Paths.get(rootPath, targetDir).toAbsolutePath().toString();
             }
             final File targetFile = new File(targetDir, templateCfg.getTargetFile());
             try {
@@ -329,7 +320,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     }
                     log.info("5.5.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
-                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[]{"@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated"});
                     }
                 } else {
                     log.info("5.5.2. 目标文件不存在");
@@ -365,8 +356,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     }
 
     /**
-     * @param sCamelCase
-     *            要处理的字符串（必须按驼峰的命名风格）
+     * @param sCamelCase 要处理的字符串（必须按驼峰的命名风格）
      * @return 得到第一个单词
      */
     private Object getFirstWord(final String sCamelCase) {
@@ -381,8 +371,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     }
 
     /**
-     * @param sCamelCase
-     *            要处理的字符串（必须按驼峰的命名风格）
+     * @param sCamelCase 要处理的字符串（必须按驼峰的命名风格）
      * @return 去掉第一个单词
      */
     private String removeFirstWord(final String sCamelCase) {
@@ -399,10 +388,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * TODO MBG : 比较两个文件的内容是否相同
      *
-     * @param file1
-     *            第一个文件
-     * @param file2
-     *            第二个文件的字节
+     * @param file1 第一个文件
+     * @param file2 第二个文件的字节
      * @return
      */
     private boolean contentEquals(final File file1, final byte[] file2) {
