@@ -1,4 +1,4 @@
-package rebue.mbgx.plugin;
+package rebue.mbgx.plugin.codegen;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.io.Files;
@@ -390,7 +390,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
      *
      * @param file1 第一个文件
      * @param file2 第二个文件的字节
-     * @return
      */
     private boolean contentEquals(final File file1, final byte[] file2) {
         return false;

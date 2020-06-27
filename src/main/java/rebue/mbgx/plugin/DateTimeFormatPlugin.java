@@ -12,9 +12,7 @@ import org.mybatis.generator.api.dom.java.TopLevelClass;
 
 /**
  * <pre>
- * 给Date类型的属性加上@DateTimeFormat注解的插件
- * 如果字段名以DAY结束，那么添加@DateTimeFormat(pattern="yyyy-MM-dd")
- * 如果字段名以_TIME结束，那么添加@DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+ * 给时间类的属性加上@DateTimeFormat、@JsonFormat注解的插件
  * </pre>
  *
  * @author zbz
