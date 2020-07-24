@@ -12,12 +12,9 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
-import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import rebue.mbgx.util.JavaSourceUtils;
-import rebue.mbgx.util.MergeJavaFileUtils;
-import rebue.mbgx.util.PathUtils;
-import rebue.mbgx.util.RemarksUtils;
+import rebue.mbgx.po.ForeignKeyPo;
+import rebue.mbgx.util.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,7 +22,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -55,14 +51,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
      */
     private static final String BEETL_MODULE_NAME = "beetlModuleName";
     /**
-     * 中间表的List(item为表名字符串)
-     */
-    private final List<String> _middleTableList = new LinkedList<>();
-    /**
-     * 外键的List
-     */
-    private final List<ForeignKeyInfo> _foreignKeyList = new LinkedList<>();
-    /**
      * 用来获取beetl模板的groupTemplate
      */
     private GroupTemplate _groupTemplate;
@@ -83,66 +71,12 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             log.info("2. 通过配置生成GroupTemplate的实例，用来获取模板");
             _groupTemplate = new GroupTemplate(cfg);
             log.info("3. 初始化JDBC连接");
-            initJdbcConn();
+            JdbcUtils.init(context);
         } catch (final IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
         return true;
-    }
-
-    /**
-     * 初始化JDBC连接
-     */
-    private void initJdbcConn() {
-        try {
-            final JDBCConnectionConfiguration conf = context.getJdbcConnectionConfiguration();
-            log.info("注册数据库驱动");
-            Class.forName(conf.getDriverClass());
-            log.info("获取数据库连接");
-            try (final Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword())) {
-                final String catalog = conn.getCatalog();
-                final DatabaseMetaData databaseMetaData = conn.getMetaData();
-                final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[]{"TABLE"});
-                log.info("开始遍历表");
-                while (databaseResultSet.next()) {
-                    final String tableName = databaseResultSet.getString("TABLE_NAME");
-                    log.info("判断{}是否是中间表", tableName);
-                    final ResultSet columnResultSet = databaseMetaData.getColumns(catalog, null, tableName, null);
-                    if (isMiddleTable(tableName, columnResultSet)) {
-                        log.info("{}是中间表", tableName);
-                        _middleTableList.add(tableName);
-                    }
-
-                    log.info("获取{}表的外键", tableName);
-                    final ResultSet foreignKeyResultSet = databaseMetaData.getImportedKeys(catalog, null, tableName);
-                    log.info("开始遍历{}表的外键", tableName);
-                    while (foreignKeyResultSet.next()) {
-                        final ForeignKeyInfo foreignKey = new ForeignKeyInfo();
-                        foreignKey.setFkTableName(tableName);
-                        foreignKey.setFkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getFkTableName(), true) + "Jo");
-                        foreignKey.setFkFieldName(foreignKeyResultSet.getString("FKCOLUMN_NAME"));
-                        final String fkBeanName = JavaBeansUtil.getCamelCaseString(tableName, false);
-                        foreignKey.setFkBeanName(fkBeanName);
-
-                        foreignKey.setPkTableName(foreignKeyResultSet.getString("PKTABLE_NAME"));
-                        foreignKey.setPkClassName(JavaBeansUtil.getCamelCaseString(foreignKey.getPkTableName(), true) + "Jo");
-                        foreignKey.setPkFieldName(foreignKeyResultSet.getString("PKCOLUMN_NAME"));
-                        final String pkBeanName = JavaBeansUtil.getCamelCaseString(foreignKey.getFkFieldName(), false);
-                        foreignKey.setPkBeanName(pkBeanName.substring(0, pkBeanName.length() - 2));
-
-                        // 先默认设置外键表不是中间表
-                        foreignKey.setIsMiddleTableOnFk(false);
-                        _foreignKeyList.add(foreignKey);
-                        log.debug("foreignKeyInfo: {}", foreignKey);
-                    }
-                }
-            }
-        } catch (final ClassNotFoundException | SQLException e) {
-            final String msg = "初始化JDBC连接出错";
-            log.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
     }
 
     /**
@@ -175,7 +109,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     @Override
     public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
         final String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
-        final boolean isMiddleTable = _middleTableList.contains(tableName);
+        final boolean isMiddleTable = JdbcUtils.getMiddleTableList().contains(tableName);
         log.info("1. 通过配置模板获取生成代码模板的配置参数");
         // 1.1.获取当前表的实体类简称并注入配置模板
         final String entityName = JavaBeansUtil.getCamelCaseString(tableName, true);
@@ -229,9 +163,9 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         }
 
         log.info("4. 设置外键和关联表");
-        final List<ForeignKeyInfo> fkFks = new LinkedList<>();
-        final List<ForeignKeyInfo> fkPks = new LinkedList<>();
-        for (final ForeignKeyInfo foreignKey : _foreignKeyList) {
+        final List<ForeignKeyPo> fkFks = new LinkedList<>();
+        final List<ForeignKeyPo> fkPks = new LinkedList<>();
+        for (final ForeignKeyPo foreignKey : JdbcUtils.getForeignKeyList()) {
             // 如果当前表是外键的外键表
             if (foreignKey.getFkTableName().equals(tableName)) {
                 if (foreignKey.getIsNullable() == null) {
@@ -242,14 +176,14 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                             props.remove(prop);
                             // 获取是否可空
                             foreignKey.setIsNullable(prop.getIsNullable());
-                            // 获取字段标题
-                            String title = prop.getName();
-                            if (title.endsWith("ID")) {
-                                title = title.substring(0, title.length() - 2);
-                            }
-                            foreignKey.setTitle(title);
+//                            // 获取字段标题
+//                            String title = prop.getName();
+//                            if (title.endsWith("ID")) {
+//                                title = title.substring(0, title.length() - 2);
+//                            }
+//                            foreignKey.setTitle(title);
                             // 外键的外键表是否是中间表
-                            foreignKey.setIsMiddleTableOnFk(_middleTableList.contains(foreignKey.getFkTableName()));
+                            foreignKey.setIsMiddleTableOnFk(JdbcUtils.getMiddleTableList().contains(foreignKey.getFkTableName()));
                             break;
                         }
                     }
@@ -340,19 +274,6 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         }
         return true;
 
-    }
-
-    /**
-     * 判断是否是中间表（目前根据遍历所有字段属性名，如果都是以Id结尾，那么是中间表，否则只要有一个不是，都不是中间表）
-     */
-    private Boolean isMiddleTable(final String tableName, final ResultSet columnResultSet) throws SQLException {
-        while (columnResultSet.next()) {
-            final String columnName = columnResultSet.getString("COLUMN_NAME");
-            if (!columnName.equals("ID") && !columnName.endsWith("_ID")) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**

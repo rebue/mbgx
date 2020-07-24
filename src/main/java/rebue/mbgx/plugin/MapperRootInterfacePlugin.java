@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author zbz
  */
-public class MapperRootIntfacePlugin extends PluginAdapter {
+public class MapperRootInterfacePlugin extends PluginAdapter {
 
     @Override
     public boolean validate(List<String> paramList) {

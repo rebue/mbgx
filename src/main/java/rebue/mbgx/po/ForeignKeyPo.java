@@ -1,16 +1,16 @@
-package rebue.mbgx.plugin.codegen;
+package rebue.mbgx.po;
 
 import lombok.Data;
 
 /**
  * 外键信息
- * CodeGenByBeetlPlugin插件读取数据库信息时，将解析表的外键信息信息保存到这个对象中
+ * Jdbc初始化时，将解析表的外键信息信息保存到这个对象中
  * 
  * @author zbz
  *
  */
 @Data
-public class ForeignKeyInfo {
+public class ForeignKeyPo {
 
     /**
      * 本表名称
