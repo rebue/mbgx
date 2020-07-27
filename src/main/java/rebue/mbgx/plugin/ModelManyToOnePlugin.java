@@ -1,21 +1,20 @@
 package rebue.mbgx.plugin;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+
 import rebue.mbgx.po.ForeignKeyPo;
 import rebue.mbgx.util.JdbcUtils;
-
-import java.util.List;
 
 /**
  * 给Model类加上多对一属性的插件
  */
-@Slf4j
 public class ModelManyToOnePlugin extends PluginAdapter {
 
     @Override
@@ -27,14 +26,14 @@ public class ModelManyToOnePlugin extends PluginAdapter {
     public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
         JdbcUtils.init(context);
 
-        String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
+        final String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
 
-        topLevelClass.addImportedType("lombok.Getter");
+        boolean      isImport  = false;
         for (final ForeignKeyPo foreignKey : JdbcUtils.getForeignKeyList()) {
             if (foreignKey.getFkTableName().equalsIgnoreCase(tableName)) {
-                FullyQualifiedJavaType clazz = new FullyQualifiedJavaType(topLevelClass.getType().getPackageName()
+                final FullyQualifiedJavaType clazz = new FullyQualifiedJavaType(topLevelClass.getType().getPackageName()
                         + "." + foreignKey.getPkClassName() + "Mo");
-                final Field field = new Field(foreignKey.getPkBeanName(), clazz);
+                final Field                  field = new Field(foreignKey.getPkBeanName(), clazz);
                 field.addJavaDocLine("/**");
                 field.addJavaDocLine("*");
                 field.addJavaDocLine("* " + foreignKey.getTitle());
@@ -44,7 +43,12 @@ public class ModelManyToOnePlugin extends PluginAdapter {
                 field.addAnnotation("@Getter");
                 field.setVisibility(JavaVisibility.PRIVATE);
                 topLevelClass.addField(field);
+                isImport = true;
             }
+        }
+
+        if (isImport) {
+            topLevelClass.addImportedType("lombok.Getter");
         }
 
         return true;
