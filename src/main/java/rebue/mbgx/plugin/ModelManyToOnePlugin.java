@@ -41,6 +41,7 @@ public class ModelManyToOnePlugin extends PluginAdapter {
                 field.addJavaDocLine("* @mbg.generated 自动生成的注释，如需修改本注释，请删除本行");
                 field.addJavaDocLine("*/");
                 field.addAnnotation("@Getter");
+                field.addAnnotation("@Setter");
                 field.setVisibility(JavaVisibility.PRIVATE);
                 topLevelClass.addField(field);
                 isImport = true;
@@ -49,6 +50,7 @@ public class ModelManyToOnePlugin extends PluginAdapter {
 
         if (isImport) {
             topLevelClass.addImportedType("lombok.Getter");
+            topLevelClass.addImportedType("lombok.Setter");
         }
 
         return true;
