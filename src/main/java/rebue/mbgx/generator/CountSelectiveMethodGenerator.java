@@ -30,11 +30,10 @@ public class CountSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
 
         method.addParameter(new Parameter(listType, "record"));                                 //$NON-NLS-1$
 
-        importedTypes.add(new FullyQualifiedJavaType("java.util.Objects"));                     //$NON-NLS-1$
         method.addBodyLine("return count(c ->");                                                //$NON-NLS-1$
-        method.addBodyLine("    c.where(id, isEqualTo(record::getId).when(Objects::nonNull))"); //$NON-NLS-1$
+        method.addBodyLine("    c.where(id, isEqualToWhenPresent(record::getId))"); //$NON-NLS-1$
         for (final IntrospectedColumn column : introspectedTable.getNonPrimaryKeyColumns()) {
-            method.addBodyLine("    .and(" + column.getJavaProperty() + ", isEqualTo(record::get" + StringUtils.capitalize(column.getJavaProperty()) + ").when(Objects::nonNull))"); //$NON-NLS-1$
+            method.addBodyLine("    .and(" + column.getJavaProperty() + ", isEqualToWhenPresent(record::get" + StringUtils.capitalize(column.getJavaProperty()) + "))"); //$NON-NLS-1$
         }
         method.addBodyLine(");");
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
