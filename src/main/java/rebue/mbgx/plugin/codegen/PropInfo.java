@@ -4,7 +4,7 @@ import lombok.Data;
 
 /**
  * 属性信息 CodeGenByBeetlPlugin插件读取数据库信息时，将解析字段的相关信息保存到这个对象中
- * 
+ *
  * @author zbz
  *
  */
@@ -32,9 +32,19 @@ public class PropInfo {
     private String  type;
 
     /**
+     * 是否主键
+     */
+    private Boolean isPrimaryKey;
+
+    /**
      * 字段是否可空
      */
     private Boolean isNullable;
+
+    /**
+     * 字段是否是无符号类型
+     */
+    private Boolean isUnsigned;
 
     /**
      * 字段默认值
