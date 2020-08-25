@@ -37,6 +37,11 @@ public class PropInfo {
     private Boolean isPrimaryKey;
 
     /**
+     * 是否主键
+     */
+    private Boolean isForeignKey;
+
+    /**
      * 字段是否可空
      */
     private Boolean isNullable;

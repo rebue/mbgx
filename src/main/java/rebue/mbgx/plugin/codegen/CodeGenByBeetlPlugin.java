@@ -156,8 +156,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             final Field              field    = topLevelClass.getFields().get(i);
             final PropInfo           propInfo = new PropInfo();
             propInfo.setCode(field.getName());
-            propInfo.setRemark(column.getRemarks());
             propInfo.setName(RemarksUtils.getTitleByRemarks(propInfo.getRemark()));
+            propInfo.setRemark(column.getRemarks());
             propInfo.setSourceCode(column.getActualColumnName());
             String typeName = field.getType().getShortName();
             if (typeName.equals("Date")) {
@@ -166,6 +166,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 }
             }
             propInfo.setIsPrimaryKey(IntrospectedUtils.isPrimaryKey(column, introspectedTable));
+            propInfo.setIsForeignKey(false);    // 默认设置为不是外键
             propInfo.setIsNullable(column.isNullable());
             propInfo.setIsUnsigned(column.getActualTypeName().contains("UNSIGNED"));
             propInfo.setLength(column.getLength());
@@ -185,8 +186,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     // 查找外键的字段属性
                     for (final PropInfo prop : props) {
                         if (prop.getSourceCode().equals(foreignKey.getFkFieldName())) {
-                            // 如果该属性是外键，先从属性中移除
-                            props.remove(prop);
+                            // 设置该属性是外键
+                            prop.setIsForeignKey(true);
                             // 获取是否可空
                             foreignKey.setIsNullable(prop.getIsNullable());
 //                            // 获取字段标题
