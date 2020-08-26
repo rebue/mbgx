@@ -156,7 +156,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             final Field              field    = topLevelClass.getFields().get(i);
             final PropInfo           propInfo = new PropInfo();
             propInfo.setCode(field.getName());
-            propInfo.setName(RemarksUtils.getTitleByRemarks(propInfo.getRemark()));
+            propInfo.setName(RemarksUtils.getTitleByRemarks(column.getRemarks()));
             propInfo.setRemark(column.getRemarks());
             propInfo.setSourceCode(column.getActualColumnName());
             String typeName = field.getType().getShortName();
