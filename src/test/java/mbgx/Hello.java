@@ -1,34 +1,33 @@
 /**
  * 测试包
+ *
  * @author zbz
  */
 package mbgx;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 /**
  * 供解析测试的类
- * 
- * @author zbz
  *
+ * @author zbz
+ * @mbg.removedMember _log
  */
+@Slf4j
+@Service
 public class Hello implements A {
-    /**
-     * 日志
-     * 
-     */
-    private final static Logger _log = LoggerFactory.getLogger(Hello.class);
 
     /**
      * 名称
-     * 
+     *
+     * @ignore
+     * @mbg.generated
      */
-    private String              name = "张三";
+    private String name = "李四";
 
     /**
      * 构造方法
-     * 
      */
     public Hello() {
         super();
@@ -36,11 +35,10 @@ public class Hello implements A {
 
     /**
      * 构造方法
-     * 
      */
     public Hello(final String name) {
         super();
-        _log.info(String.format("Hello, %s", this.name));
+        log.info(String.format("Hello, %s", this.name));
         this.name = name;
     }
 
@@ -49,13 +47,14 @@ public class Hello implements A {
      */
     @Override
     public String hello(final String name) {
-        _log.info(String.format("Hello, %s", name));
+        log.info(String.format("Hello, %s", name));
         return "ok";
     }
 
     /**
      * 主方法
-     * 
+     *
+     * @ignore
      * @mbg.generated
      */
     public static void main(final String[] args) {
@@ -68,16 +67,14 @@ public class Hello implements A {
 
 /**
  * A接口
- * 
- * @author zbz
  *
+ * @author zbz
  */
 interface A {
     /**
      * hello方法
-     * 
-     * @param name
-     *            名称
+     *
+     * @param name 名称
      * @return 内容
      */
     String hello(String name);

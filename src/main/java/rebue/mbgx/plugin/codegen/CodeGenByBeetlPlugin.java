@@ -1,19 +1,8 @@
 package rebue.mbgx.plugin.codegen;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import com.alibaba.fastjson.JSON;
+import com.google.common.io.Files;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
@@ -24,18 +13,19 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-
-import com.alibaba.fastjson.JSON;
-import com.google.common.io.Files;
-
-import lombok.extern.slf4j.Slf4j;
+import rebue.mbgx.TagsCo;
 import rebue.mbgx.po.ForeignKeyPo;
-import rebue.mbgx.util.IntrospectedUtils;
-import rebue.mbgx.util.JavaSourceUtils;
-import rebue.mbgx.util.JdbcUtils;
-import rebue.mbgx.util.MergeJavaFileUtils;
-import rebue.mbgx.util.PathUtils;
-import rebue.mbgx.util.RemarksUtils;
+import rebue.mbgx.util.*;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * 利用beetl生成代码的插件
@@ -48,7 +38,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * beetl的配置文件（位于classpath下的路径）
      */
-    private static final String BEETL_CFG_FILE           = "beetlCfgFile";
+    private static final String BEETL_CFG_FILE = "beetlCfgFile";
     /**
      * beetl的模板文件（位于模板目录下的路径），多个文件用逗号相隔
      */
@@ -56,26 +46,26 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径）
      */
-    private static final String BEETL_MODULE_PATH        = "beetlModulePath";
+    private static final String BEETL_MODULE_PATH = "beetlModulePath";
     /**
      * beetl模板生成文件的模块名称（用在模板配置文件中指定jsp/js/css等生成文件的路径）
      */
-    private static final String BEETL_MODULE_NAME        = "beetlModuleName";
+    private static final String BEETL_MODULE_NAME = "beetlModuleName";
     /**
      * 用来获取beetl模板的groupTemplate
      */
-    private GroupTemplate       _groupTemplate;
+    private GroupTemplate _groupTemplate;
     /**
      * 模块的包，用来注入模板，获取beetlModulePath后将/替换为.就可以得到
      */
-    private String              _modulePackage;
+    private String _modulePackage;
 
     @Override
     public boolean validate(final List<String> paramList) {
         try {
             log.info("1. 取beetl的配置");
-            final Configuration cfg          = new Configuration();
-            final String        beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
+            final Configuration cfg = new Configuration();
+            final String beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
             if (beetlCfgFile != null) {
                 cfg.add(beetlCfgFile);
             }
@@ -101,10 +91,10 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 throw new RuntimeException("没有配置“" + BEETL_TEMPLATES_CFG_FILE + "”选项");
             }
             // 2.通过beetl获取配置模板
-            final GroupTemplate groupTemplate   = new GroupTemplate(Configuration.defaultConfiguration());
-            final Template      cfgTemplate     = groupTemplate.getTemplate(templatesCfgFile);
+            final GroupTemplate groupTemplate = new GroupTemplate(Configuration.defaultConfiguration());
+            final Template cfgTemplate = groupTemplate.getTemplate(templatesCfgFile);
             // 3.读取beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径），并注入到配置模板中
-            final String        beetlModulePath = properties.getProperty(BEETL_MODULE_PATH);
+            final String beetlModulePath = properties.getProperty(BEETL_MODULE_PATH);
             cfgTemplate.binding("modulePath", beetlModulePath);
             // 4.计算出模块的包，准备在需要生成代码的模板中注入
             _modulePackage = beetlModulePath.replace('/', '.');
@@ -119,18 +109,18 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
     @Override
     public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
-        final String  tableName     = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
+        final String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
         final boolean isMiddleTable = JdbcUtils.getMiddleTableList().contains(tableName);
         log.info("1. 通过配置模板获取生成代码模板的配置参数");
         // 1.1.获取当前表的实体类简称并注入配置模板
-        final String   entityName  = JavaBeansUtil.getCamelCaseString(tableName, true);
+        final String entityName = JavaBeansUtil.getCamelCaseString(tableName, true);
         // 1.2.获取需要生成代码的模板的配置模板
         final Template cfgTemplate = getCfgTemplate();
         // 1.3.注入参数到配置模板
         cfgTemplate.binding("entityName", entityName);
         cfgTemplate.binding("entitySimpleName", removeFirstWord(entityName));
         // 1.4.返回配置模板的渲染结果
-        final String            json         = cfgTemplate.render();
+        final String json = cfgTemplate.render();
         // 1.5.解析模板的配置（json格式）
         final List<TemplateCfg> templateCfgs = JSON.parseArray(json, TemplateCfg.class);// 注意TemplateCfg不能是内部类
 
@@ -152,9 +142,9 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         log.info("3. 准备实体的属性信息");
         final List<PropInfo> props = new ArrayList<>();
         for (int i = 0; i < introspectedTable.getAllColumns().size(); i++) {
-            final IntrospectedColumn column   = introspectedTable.getAllColumns().get(i);
-            final Field              field    = topLevelClass.getFields().get(i);
-            final PropInfo           propInfo = new PropInfo();
+            final IntrospectedColumn column = introspectedTable.getAllColumns().get(i);
+            final Field field = topLevelClass.getFields().get(i);
+            final PropInfo propInfo = new PropInfo();
             propInfo.setCode(field.getName());
             propInfo.setName(RemarksUtils.getTitleByRemarks(column.getRemarks()));
             propInfo.setRemark(column.getRemarks());
@@ -268,7 +258,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     }
                     log.info("5.5.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
-                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, new String[] { "@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated" });
+                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, TagsCo.autoGenTags, TagsCo.removedMemberTags);
                     }
                 } else {
                     log.info("5.5.2. 目标文件不存在");

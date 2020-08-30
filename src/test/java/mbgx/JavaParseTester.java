@@ -7,6 +7,7 @@ import org.beetl.core.resource.ClasspathResourceLoader;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import rebue.mbgx.TagsCo;
 import rebue.mbgx.util.MergeJavaFileUtils;
 
 import java.io.DataInputStream;
@@ -55,8 +56,7 @@ public class JavaParseTester {
         final String newFileSource = t.render();
 
         final String existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
-        final String mergeText = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath,
-                new String[]{"@ibatorgenerated", "@abatorgenerated", "@mbggenerated", "@mbg.generated"});
+        final String mergeText = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, TagsCo.autoGenTags, TagsCo.removedMemberTags);
         _log.debug(mergeText);
     }
 }

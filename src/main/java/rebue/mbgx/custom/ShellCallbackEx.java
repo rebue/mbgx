@@ -1,12 +1,12 @@
 package rebue.mbgx.custom;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
-
+import rebue.mbgx.TagsCo;
 import rebue.mbgx.util.MergeJavaFileUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * <pre>
@@ -14,9 +14,8 @@ import rebue.mbgx.util.MergeJavaFileUtils;
  * 此方法检查文档注释中是否有@mbg.generated等注解来判断是否是自动生成的属性和方法
  * 欢迎大家踊跃测试并提供宝贵意见
  * </pre>
- * 
- * @author zbz
  *
+ * @author zbz
  */
 public class ShellCallbackEx extends DefaultShellCallback {
     public ShellCallbackEx(final boolean overwrite) {
@@ -35,7 +34,7 @@ public class ShellCallbackEx extends DefaultShellCallback {
             if (existingFile.getName().endsWith("Mapper.java") || existingFile.getName().endsWith("DynamicSqlSupport.java")) {
                 return newFileSource;
             }
-            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags);
+            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags);
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);
