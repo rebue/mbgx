@@ -1,9 +1,5 @@
 package rebue.mbgx.util;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
@@ -11,8 +7,11 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.printer.PrettyPrinterConfiguration;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class JavaSourceUtils {
@@ -31,7 +30,7 @@ public class JavaSourceUtils {
         final NodeList<ImportDeclaration> newImports = new NodeList<>();
         compilationUnit.setImports(newImports);
 
-        final Set<String>      classNames  = new HashSet<>();
+        final Set<String> classNames = new HashSet<>();
         // 获取类
         final List<SimpleName> simpleNames = compilationUnit.findAll(SimpleName.class);
         for (final SimpleName simpleName : simpleNames) {
@@ -49,10 +48,17 @@ public class JavaSourceUtils {
             }
         }
         log.debug(classNames.toString());
-        OUTLOOP: for (final ImportDeclaration importDeclaration : oldImports) {
+        OUTLOOP:
+        for (final ImportDeclaration oldImport : oldImports) {
+            if (oldImport.isAsterisk()) {
+                log.info("带*号的import，无法判断，直接添加");
+                newImports.add(oldImport);
+                continue;
+            }
+
             for (final String className : classNames) {
-                if (className.equals(importDeclaration.getName().getIdentifier())) {
-                    newImports.add(importDeclaration);
+                if (className.equals(oldImport.getName().getIdentifier())) {
+                    newImports.add(oldImport);
                     continue OUTLOOP;
                 }
             }
