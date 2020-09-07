@@ -7,8 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RemarksUtil {
-    private final static Logger _log = LoggerFactory.getLogger(RemarksUtil.class);
+public class RemarksUtils {
+    private final static Logger _log = LoggerFactory.getLogger(RemarksUtils.class);
 
     /**
      * 通过备注得到标题（有些标题是名称+（1-xxx,2-xxx），去掉后面的内容来取得名称）
@@ -17,18 +17,20 @@ public class RemarksUtil {
      *            字段或表的备注
      * @return
      */
-    public static String getTitleByRemarks(String remarks) {
+    public static String getTitleByRemarks(final String remarks) {
         _log.debug("getTitleByRemarks: " + remarks);
-        if (StringUtils.isBlank(remarks))
+        if (StringUtils.isBlank(remarks)) {
             return "";
-        int i = 1;
-        for (; i < remarks.length(); i++) {
-            char ch = remarks.charAt(i);
+        }
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < remarks.length(); i++) {
+            final char ch = remarks.charAt(i);
             if (ch == '(' || ch == ' ' || ch == '（' || ch == '\n' || ch == '\r') {
                 break;
             }
+            sb.append(ch);
         }
-        return remarks.substring(0, i);
+        return sb.toString();
     }
 
     /**
@@ -37,36 +39,36 @@ public class RemarksUtil {
      * @param remarks
      * @return
      */
-    public static String getSplitJointRemarks(String remarks) {
+    public static String getSplitJointRemarks(final String remarks) {
         _log.trace("getSplitJointRemarks: " + remarks);
 
         // 按行分割
-        String[] remarksArr = remarks.split("[\\n\\r]");
+        final String[] remarksArr = remarks.split("[\\n\\r]");
 
         // 去除空行
-        List<String> remarkList = new ArrayList<>();
-        for (int i = 0; i < remarksArr.length; i++) {
-            if (!StringUtils.isBlank(remarksArr[i])) {
-                remarkList.add(remarksArr[i]);
+        final List<String> remarkList = new ArrayList<>();
+        for (final String element : remarksArr) {
+            if (!StringUtils.isBlank(element)) {
+                remarkList.add(element);
             }
         }
 
         String sRemarks = "";
-        if (remarkList.isEmpty())
+        if (remarkList.isEmpty()) {
             sRemarks = "";
-        else if (remarkList.size() == 1)
+        } else if (remarkList.size() == 1) {
             sRemarks = remarks;
-        else {
+        } else {
             for (int i = 0; i < remarkList.size(); i++) {
                 // 如果是第一行
-                if (i == 0)
+                if (i == 0) {
                     sRemarks += remarkList.get(i) + "\\n\"\n";
-                // 如果是最后一行
-                else if (i == remarkList.size() - 1)
+                } else if (i == remarkList.size() - 1) {
                     sRemarks += "             +\"" + remarkList.get(i);
-                // 如果是中间行
-                else
+                    // 如果是中间行
+                } else {
                     sRemarks += "             +\"" + remarkList.get(i) + "\\n\"\n";
+                }
             }
         }
 

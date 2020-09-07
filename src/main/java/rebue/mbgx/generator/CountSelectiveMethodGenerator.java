@@ -12,33 +12,30 @@ import org.mybatis.generator.api.dom.java.Method;
 import org.mybatis.generator.api.dom.java.Parameter;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
 
-public class SelectSelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
+public class CountSelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     @Override
     public void addInterfaceElements(final Interface interfaze) {
         final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
-        importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
+//        importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        final Method method = new Method("selectSelective");                                            //$NON-NLS-1$
+        final Method method = new Method("countSelective");                                     //$NON-NLS-1$
         method.setDefault(true);
         method.setVisibility(JavaVisibility.PUBLIC);
 
-        final FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
         final FullyQualifiedJavaType listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
 
         importedTypes.add(listType);
-        returnType.addTypeArgument(listType);
-        method.setReturnType(returnType);
+        method.setReturnType(new FullyQualifiedJavaType("long"));                               //$NON-NLS-1$
 
-        method.addParameter(new Parameter(listType, "record"));                                         //$NON-NLS-1$
+        method.addParameter(new Parameter(listType, "record"));                                 //$NON-NLS-1$
 
-        method.addBodyLine("return select(c ->");                                                       //$NON-NLS-1$
-        method.addBodyLine("    c.where(id, isEqualToWhenPresent(record::getId))");         //$NON-NLS-1$
+        method.addBodyLine("return count(c ->");                                                //$NON-NLS-1$
+        method.addBodyLine("    c.where(id, isEqualToWhenPresent(record::getId))"); //$NON-NLS-1$
         for (final IntrospectedColumn column : introspectedTable.getNonPrimaryKeyColumns()) {
             method.addBodyLine("    .and(" + column.getJavaProperty() + ", isEqualToWhenPresent(record::get" + StringUtils.capitalize(column.getJavaProperty()) + "))"); //$NON-NLS-1$
         }
         method.addBodyLine(");");
-
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
         if (context.getPlugins().clientSelectAllMethodGenerated(method, interfaze, introspectedTable)) {

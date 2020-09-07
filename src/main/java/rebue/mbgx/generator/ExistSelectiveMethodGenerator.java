@@ -13,25 +13,25 @@ import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMa
 public class ExistSelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     @Override
-    public void addInterfaceElements(Interface interfaze) {
-        Set<FullyQualifiedJavaType> importedTypes = new TreeSet<FullyQualifiedJavaType>();
+    public void addInterfaceElements(final Interface interfaze) {
+        final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
 
-        Method method = new Method();
+        final Method method = new Method("existSelective");             //$NON-NLS-1$
+        method.setDefault(true);
         method.setVisibility(JavaVisibility.PUBLIC);
 
-        FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
-        FullyQualifiedJavaType listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        final FullyQualifiedJavaType returnType = FullyQualifiedJavaType.getNewListInstance();
+        final FullyQualifiedJavaType listType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
 
         importedTypes.add(listType);
         returnType.addTypeArgument(listType);
 
         method.setReturnType(FullyQualifiedJavaType.getBooleanPrimitiveInstance());
-        method.setName("existSelective");
 
-        method.addParameter(new Parameter(listType, "record"));
+        method.addParameter(new Parameter(listType, "record"));         //$NON-NLS-1$
 
-        addMapperAnnotations(interfaze, method);
+        method.addBodyLine("return countSelective(record) > 0;");       //$NON-NLS-1$
 
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
@@ -39,9 +39,6 @@ public class ExistSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);
         }
-    }
-
-    public void addMapperAnnotations(Interface interfaze, Method method) {
     }
 
 }

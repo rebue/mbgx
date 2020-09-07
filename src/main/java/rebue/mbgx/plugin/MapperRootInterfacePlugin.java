@@ -6,31 +6,30 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
 
 /**
  * 给Mapper类加上继承的父接口的插件
  * XXX MBG : 注意：此插件只处理表有且仅有一个主键的情况
- * 
+ *
  * @author zbz
  */
-public class MapperRootIntfacePlugin extends PluginAdapter {
+public class MapperRootInterfacePlugin extends PluginAdapter {
 
     @Override
-    public boolean validate(List<String> paramList) {
+    public boolean validate(final List<String> paramList) {
         return true;
     }
 
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass,
-            IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(final Interface interfaze, final IntrospectedTable introspectedTable) {
         // 此插件只处理表有且仅有一个主键的情况
-        if (introspectedTable.getPrimaryKeyColumns().size() != 1)
+        if (introspectedTable.getPrimaryKeyColumns().size() != 1) {
             return false;
+        }
 
-        // 获取MybatisBaseMapper类型
-        FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType("MybatisBaseMapper");
-        interfaze.addImportedType(new FullyQualifiedJavaType("rebue.robotech.mapper.MybatisBaseMapper"));
+        // 获取MapperRootInterface类型
+        final FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType("MapperRootInterface");
+        interfaze.addImportedType(new FullyQualifiedJavaType("rebue.robotech.mybatis.MapperRootInterface"));
 
         // 添加实体类型的泛型
         FullyQualifiedJavaType parameterType = introspectedTable.getRules().calculateAllFieldsClass();
@@ -41,19 +40,19 @@ public class MapperRootIntfacePlugin extends PluginAdapter {
         parameterType = getPrimaryKeyType(introspectedTable);
         interfaze.addImportedType(parameterType);
         fullyQualifiedJavaType.addTypeArgument(parameterType);
-        
-        // 继承MybatisBaseMapper
+
+        // 继承MapperRootInterface
         interfaze.addSuperInterface(fullyQualifiedJavaType);
         return true;
     }
 
     /**
      * 获取主键所对应的Java类型
-     * 
+     *
      * @param introspectedTable
      * @return
      */
-    private FullyQualifiedJavaType getPrimaryKeyType(IntrospectedTable introspectedTable) {
+    private FullyQualifiedJavaType getPrimaryKeyType(final IntrospectedTable introspectedTable) {
         return introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType();
     }
 
