@@ -163,7 +163,11 @@ public class MergeJavaFileUtils {
             }
 
             log.info("使用新的类或接口的代码替换旧代码");
-            oldClassOrInterface.setCallablesWithSignature(oldClassOrInterface.get);
+            oldClassOrInterface.setModifiers(newClassOrInterface.getModifiers());
+            oldClassOrInterface.setName(newClassOrInterface.getName());
+            oldClassOrInterface.setExtendedTypes(newClassOrInterface.getExtendedTypes());
+            oldClassOrInterface.setImplementedTypes(newClassOrInterface.getImplementedTypes());
+            oldClassOrInterface.setTypeParameters(newClassOrInterface.getTypeParameters());
 
             log.info("合并类或接口的成员");
             final NodeList<BodyDeclaration<?>> newMembers = newClassOrInterface.getMembers();
