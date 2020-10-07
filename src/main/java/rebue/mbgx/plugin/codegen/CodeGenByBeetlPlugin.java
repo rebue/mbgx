@@ -75,8 +75,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     public boolean validate(final List<String> paramList) {
         try {
             log.info("1. 取beetl的配置");
-            final Configuration cfg          = new Configuration();
-            final String        beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
+            final Configuration cfg = new Configuration();
+            final String beetlCfgFile = properties.getProperty(BEETL_CFG_FILE);
             if (beetlCfgFile != null) {
                 cfg.add(beetlCfgFile);
             }
@@ -102,10 +102,10 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                 throw new RuntimeException("没有配置“" + BEETL_TEMPLATES_CFG_FILE + "”选项");
             }
             // 2.通过beetl获取配置模板
-            final GroupTemplate groupTemplate   = new GroupTemplate(Configuration.defaultConfiguration());
-            final Template      cfgTemplate     = groupTemplate.getTemplate(templatesCfgFile);
+            final GroupTemplate groupTemplate = new GroupTemplate(Configuration.defaultConfiguration());
+            final Template cfgTemplate = groupTemplate.getTemplate(templatesCfgFile);
             // 3.读取beetl模板生成文件的模块路径（用在模板的配置文件中指定java生成文件的路径），并注入到配置模板中
-            final String        beetlModulePath = properties.getProperty(BEETL_MODULE_PATH);
+            final String beetlModulePath = properties.getProperty(BEETL_MODULE_PATH);
             cfgTemplate.binding("modulePath", beetlModulePath);
             // 4.计算出模块的包，准备在需要生成代码的模板中注入
             _modulePackage = beetlModulePath.replace('/', '.');
@@ -120,18 +120,18 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
 
     @Override
     public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass, final IntrospectedTable introspectedTable) {
-        final String  tableName     = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
+        final String tableName = introspectedTable.getFullyQualifiedTable().getIntrospectedTableName();
         final boolean isMiddleTable = JdbcUtils.getMiddleTableList().contains(tableName);
         log.info("1. 通过配置模板获取生成代码模板的配置参数");
         // 1.1.获取当前表的实体类简称并注入配置模板
-        final String   entityName  = JavaBeansUtil.getCamelCaseString(tableName, true);
+        final String entityName = JavaBeansUtil.getCamelCaseString(tableName, true);
         // 1.2.获取需要生成代码的模板的配置模板
         final Template cfgTemplate = getCfgTemplate();
         // 1.3.注入参数到配置模板
         cfgTemplate.binding("entityName", entityName);
         cfgTemplate.binding("entitySimpleName", removeFirstWord(entityName));
         // 1.4.返回配置模板的渲染结果
-        final String            json         = cfgTemplate.render();
+        final String json = cfgTemplate.render();
         // 1.5.解析模板的配置（json格式）
         final List<TemplateCfg> templateCfgs = JSON.parseArray(json, TemplateCfg.class);// 注意TemplateCfg不能是内部类
 
@@ -153,9 +153,9 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
         log.info("3. 准备实体的属性信息");
         final List<PropInfo> props = new ArrayList<>();
         for (int i = 0; i < introspectedTable.getAllColumns().size(); i++) {
-            final IntrospectedColumn column   = introspectedTable.getAllColumns().get(i);
-            final Field              field    = topLevelClass.getFields().get(i);
-            final PropInfo           propInfo = new PropInfo();
+            final IntrospectedColumn column = introspectedTable.getAllColumns().get(i);
+            final Field field = topLevelClass.getFields().get(i);
+            final PropInfo propInfo = new PropInfo();
             propInfo.setCode(field.getName());
             propInfo.setName(RemarksUtils.getTitleByRemarks(column.getRemarks()));
             propInfo.setRemark(column.getRemarks());
@@ -226,13 +226,14 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             template.binding("pojo", topLevelClass);
             template.binding("table", introspectedTable);
             template.binding("tableName", tableName);
-            template.binding("props", props);                                       // 表所有字段的属性信息
-            template.binding("fkFks", fkFks);                                       // 外键的外键信息列表
-            template.binding("fkPks", fkPks);                                       // 外键的主键信息列表
+            template.binding("props", props);                                               // 表所有字段的属性信息
+            template.binding("fkFks", fkFks);                                               // 外键的外键信息列表
+            template.binding("fkPks", fkPks);                                               // 外键的主键信息列表
             template.binding("modulePackage", _modulePackage);
             template.binding("moduleName", properties.getProperty(BEETL_MODULE_NAME));
+            template.binding("sysName", getFirstWord(entityName).toLowerCase());            // 系统名称(全小写)
             template.binding("entityName", entityName);
-            template.binding("entityNamePrefix", getFirstWord(entityName)); // 实体名称的前缀，一般是系统的简称
+            template.binding("entityNamePrefix", getFirstWord(entityName));                 // 实体名称的前缀，一般是系统名称首字母大写
             template.binding("entitySimpleName", removeFirstWord(entityName));
             template.binding("entityTitle", RemarksUtils.getTitleByRemarks(introspectedTable.getRemarks()));
             template.binding("entityRemarks", RemarksUtils.getSplitJointRemarks(introspectedTable.getRemarks()));
@@ -287,10 +288,11 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     }
 
     /**
-     * @param sCamelCase 要处理的字符串（必须按驼峰的命名风格）
+     * @param sCamelCase
+     *            要处理的字符串（必须按驼峰的命名风格）
      * @return 得到第一个单词
      */
-    private Object getFirstWord(final String sCamelCase) {
+    private String getFirstWord(final String sCamelCase) {
         int i = 1;
         for (; i < sCamelCase.length(); i++) {
             final char ch = sCamelCase.charAt(i);
@@ -302,7 +304,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     }
 
     /**
-     * @param sCamelCase 要处理的字符串（必须按驼峰的命名风格）
+     * @param sCamelCase
+     *            要处理的字符串（必须按驼峰的命名风格）
      * @return 去掉第一个单词
      */
     private String removeFirstWord(final String sCamelCase) {
@@ -319,8 +322,10 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * TODO MBG : 比较两个文件的内容是否相同
      *
-     * @param file1 第一个文件
-     * @param file2 第二个文件的字节
+     * @param file1
+     *            第一个文件
+     * @param file2
+     *            第二个文件的字节
      */
     private boolean contentEquals(final File file1, final byte[] file2) {
         return false;

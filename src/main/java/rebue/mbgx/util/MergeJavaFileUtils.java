@@ -1,23 +1,28 @@
 package rebue.mbgx.util;
 
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.comments.Comment;
-import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.javadoc.Javadoc;
-import com.github.javaparser.javadoc.JavadocBlockTag;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.CallableDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.javadoc.Javadoc;
+import com.github.javaparser.javadoc.JavadocBlockTag;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MergeJavaFileUtils {
@@ -25,10 +30,14 @@ public class MergeJavaFileUtils {
     /**
      * 合并Java代码 将已存在的Java文件中的手工添加的部分合并进新模板的Java代码
      *
-     * @param newFileSource              新代码文件的内容
-     * @param existingFileFullPath       已存在的代码文件的全路径
-     * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param newFileSource
+     *            新代码文件的内容
+     * @param existingFileFullPath
+     *            已存在的代码文件的全路径
+     * @param javadocTagsOfAutoGen
+     *            标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param javadocTagsOfRemovedMember
+     *            标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
      * @return 合并后的新内容
      */
     public static String merge(final String newFileSource, final String existingFileFullPath, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember)
@@ -39,10 +48,14 @@ public class MergeJavaFileUtils {
     /**
      * 合并Java代码
      *
-     * @param newFileSource              新代码文件的内容
-     * @param existingFile               已存在的代码文件
-     * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param newFileSource
+     *            新代码文件的内容
+     * @param existingFile
+     *            已存在的代码文件
+     * @param javadocTagsOfAutoGen
+     *            标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param javadocTagsOfRemovedMember
+     *            标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
      * @return 合并后的新内容
      */
     public static String merge(final String newFileSource, final File existingFile, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember)
@@ -56,14 +69,18 @@ public class MergeJavaFileUtils {
     /**
      * 合并Java代码
      *
-     * @param newCompilationUnit         新代码的编译器
-     * @param oldCompilationUnit         已存在代码的编译器
-     * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param newCompilationUnit
+     *            新代码的编译器
+     * @param oldCompilationUnit
+     *            已存在代码的编译器
+     * @param javadocTagsOfAutoGen
+     *            标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param javadocTagsOfRemovedMember
+     *            标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
      * @return 合并后的内容
      */
     private static String mergeCompilationUnit(final CompilationUnit newCompilationUnit, final CompilationUnit oldCompilationUnit, final String[] javadocTagsOfAutoGen,
-                                               final String[] javadocTagsOfRemovedMember) {
+            final String[] javadocTagsOfRemovedMember) {
         log.info("判断是否替换代码开头的注释");
         // 如果新代码有注释
         newCompilationUnit.getComment().ifPresent(newComment -> {
@@ -85,8 +102,7 @@ public class MergeJavaFileUtils {
         newCompilationUnit.getPackageDeclaration().ifPresent(oldCompilationUnit::setPackageDeclaration);
 
         log.info("合并imports");
-        OUTLOOP:
-        for (final ImportDeclaration newImport : newCompilationUnit.getImports()) {
+        OUTLOOP: for (final ImportDeclaration newImport : newCompilationUnit.getImports()) {
             for (final ImportDeclaration oldImport : oldCompilationUnit.getImports()) {
                 if (oldImport.getName().equals(newImport.getName())) {
                     continue OUTLOOP;
@@ -152,8 +168,7 @@ public class MergeJavaFileUtils {
             }));
 
             log.info("合并类或接口的注解");
-            OUTLOOP:
-            for (final AnnotationExpr newAnnotation : newClassOrInterface.getAnnotations()) {
+            OUTLOOP: for (final AnnotationExpr newAnnotation : newClassOrInterface.getAnnotations()) {
                 for (final AnnotationExpr oldAnnotation : oldClassOrInterface.getAnnotations()) {
                     if (oldAnnotation.getName().equals(newAnnotation.getName())) {
                         continue OUTLOOP;
@@ -171,6 +186,55 @@ public class MergeJavaFileUtils {
 
             log.info("合并类或接口的成员");
             final NodeList<BodyDeclaration<?>> newMembers = newClassOrInterface.getMembers();
+
+            log.info("旧类或接口中删除在新类或接口中已经不存在的自动生成的成员");
+            final NodeList<BodyDeclaration<?>> oldMembers = oldClassOrInterface.getMembers();
+            final List<BodyDeclaration<?>> toRemoveMembers = new LinkedList<>();
+            for (final BodyDeclaration<?> oldMember : oldMembers) {
+                // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不删除此成员
+                final Optional<Comment> oldCommentOptional = oldMember.getComment();
+                if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment() || !hasTag(oldCommentOptional.get().asJavadocComment(), javadocTagsOfAutoGen)) {
+                    continue;
+                }
+
+                // 如果是字段
+                if (oldMember.isFieldDeclaration()) {
+                    // 新字段
+                    final FieldDeclaration oldField = oldMember.asFieldDeclaration();
+                    // 获取字段的名称
+                    final String fieldName = getFieldName(oldField);
+                    // 新代码中的字段
+                    final Optional<FieldDeclaration> newFieldOptional = newClassOrInterface.getFieldByName(fieldName);
+                    if (!newFieldOptional.isPresent()) {
+                        log.info("此字段在新代码中不存在，将其删除: {}", fieldName);
+                        toRemoveMembers.add(oldMember);
+                    }
+                }
+                // 如果是方法(包含构造方法)
+                else if (oldMember.isCallableDeclaration()) {
+                    // 新方法
+                    final CallableDeclaration<?> oldCallable = oldMember.asCallableDeclaration();
+                    // 获取新方法的名称
+                    final String callableName = oldCallable.getNameAsString();
+                    log.info("当前成员是方法: {}", callableName);
+
+                    // 获取旧方法的签名
+                    final CallableDeclaration.Signature oldCallableSignature = oldCallable.getSignature();
+
+                    // 获取新方法列表
+                    final List<CallableDeclaration<?>> newCallables = newClassOrInterface.getCallablesWithSignature(oldCallableSignature);
+                    if (newCallables.isEmpty()) {
+                        log.info("此方法在新代码中不存在，将其删除: {}", callableName);
+                        toRemoveMembers.add(oldMember);
+                    }
+                }
+            }
+
+            for (final BodyDeclaration<?> removedMember : toRemoveMembers) {
+                oldClassOrInterface.remove(removedMember);
+            }
+
+            log.info("将新类或接口中的成员合并到旧类或接口中");
             for (final BodyDeclaration<?> newMember : newMembers) {
                 // 如果是字段
                 if (newMember.isFieldDeclaration()) {
@@ -195,8 +259,10 @@ public class MergeJavaFileUtils {
                         continue;
                     }
 
+                    final FieldDeclaration oldField = oldFieldOptional.get();
+
                     // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不替换此成员
-                    final Optional<Comment> oldCommentOptional = oldFieldOptional.get().getComment();
+                    final Optional<Comment> oldCommentOptional = oldField.getComment();
                     if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment()
                             || !hasTag(oldCommentOptional.get().asJavadocComment(), javadocTagsOfAutoGen)) {
                         continue;
@@ -206,7 +272,7 @@ public class MergeJavaFileUtils {
                     newMember.setComment(mergeJavadocTags(oldCommentOptional.get().asJavadocComment(), newMember.getComment().get().asJavadocComment()));
 
                     // 替换字段
-                    oldClassOrInterface.replace(oldFieldOptional.get(), newMember);
+                    oldClassOrInterface.replace(oldField, newMember);
 
                 }
                 // 如果是方法(包含构造方法)
@@ -235,7 +301,9 @@ public class MergeJavaFileUtils {
                     if (oldCallables.size() > 1) {
                         throw new RuntimeException("源代码中出现多个同样签名的方法");
                     }
+
                     final CallableDeclaration<?> oldCallable = oldCallables.get(0);
+
                     // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不替换此成员
                     final Optional<Comment> oldCommentOptional = oldCallable.getComment();
                     if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment()
@@ -250,6 +318,10 @@ public class MergeJavaFileUtils {
                     oldClassOrInterface.replace(oldCallable, newMember);
                 }
             }
+
+//            for (final BodyDeclaration<?> oldMember : oldMembers) {
+//                oldClassOrInterface.remove(oldMember);
+//            }
         }
 
         // 移除没有用的import，并返回格式化后的源代码
@@ -259,7 +331,8 @@ public class MergeJavaFileUtils {
     /**
      * 获取Javadoc中的注解
      *
-     * @param javadocComment Javadoc的注释
+     * @param javadocComment
+     *            Javadoc的注释
      * @return Javadoc中的注解列表
      */
     private static List<JavadocBlockTag> getTags(final JavadocComment javadocComment) {
@@ -270,8 +343,10 @@ public class MergeJavaFileUtils {
     /**
      * 判断JavaDoc的Tag列表里面是否有指定的注解
      *
-     * @param javadocTags JavaDoc的Tag列表
-     * @param tags        判断是否包含的注解
+     * @param javadocTags
+     *            JavaDoc的Tag列表
+     * @param tags
+     *            判断是否包含的注解
      * @return 是否有Javadoc注释，且里面包含指定的注解
      */
     private static boolean hasTag(final List<JavadocBlockTag> javadocTags, final String[] tags) {
@@ -288,8 +363,10 @@ public class MergeJavaFileUtils {
     /**
      * 判断Javadoc的注释中有没有包含指定的注解
      *
-     * @param javadocComment Javadoc的注释
-     * @param tags           判断是否包含的注解
+     * @param javadocComment
+     *            Javadoc的注释
+     * @param tags
+     *            判断是否包含的注解
      * @return 是否包含
      */
     private static boolean hasTag(final JavadocComment javadocComment, final String[] tags) {
@@ -300,8 +377,10 @@ public class MergeJavaFileUtils {
     /**
      * 判断节点是否有Javadoc注释，且里面包含指定的注解
      *
-     * @param node 节点
-     * @param tags 判断是否包含的注解
+     * @param node
+     *            节点
+     * @param tags
+     *            判断是否包含的注解
      * @return 是否有Javadoc注释，且里面包含指定的注解
      */
     private static boolean hasTag(final Node node, final String[] tags) {
@@ -316,8 +395,10 @@ public class MergeJavaFileUtils {
     /**
      * 合并Javadoc注释中的注解(如果目的注释有手工添加的注解，则保留下来)
      *
-     * @param srcJavadocComment 源注释
-     * @param dstJavadocComment 目的注释
+     * @param srcJavadocComment
+     *            源注释
+     * @param dstJavadocComment
+     *            目的注释
      * @return 合并后的注释
      */
     private static JavadocComment mergeJavadocTags(final JavadocComment srcJavadocComment, final JavadocComment dstJavadocComment) {
@@ -327,8 +408,7 @@ public class MergeJavaFileUtils {
         // 如果目的注释有手工添加的注解，则保留下来
         final List<JavadocBlockTag> srcJavadocTags = srcJavadoc.getBlockTags();
         final List<JavadocBlockTag> dstJavadocTags = dstJavadoc.getBlockTags();
-        OUTLOOP:
-        for (final JavadocBlockTag srcJavadocTag : srcJavadocTags) {
+        OUTLOOP: for (final JavadocBlockTag srcJavadocTag : srcJavadocTags) {
             for (final JavadocBlockTag dstJavadocTag : dstJavadocTags) {
                 if (srcJavadocTag.getTagName().equals(dstJavadocTag.getTagName())) {
                     continue OUTLOOP;
