@@ -5,8 +5,9 @@
  */
 package mbgx;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 供解析测试的类
@@ -47,8 +48,11 @@ public class Hello implements A {
      */
     @Override
     public String hello(final String name) {
+        // 测试代码中的注释1
         log.info(String.format("Hello, %s", name));
+        // 测试代码中的注释2
         return "ok";
+        // 测试代码中的注释3
     }
 
     /**
@@ -58,8 +62,8 @@ public class Hello implements A {
      * @mbg.generated
      */
     public static void main(final String[] args) {
-        final Hello hello = new Hello();
-        final String world = "world";
+        final Hello  hello = new Hello();
+        final String world = "world1";
         System.out.println(hello.hello(world));
     }
 
