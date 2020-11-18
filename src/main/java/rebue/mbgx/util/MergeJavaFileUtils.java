@@ -54,9 +54,7 @@ public class MergeJavaFileUtils {
     public static String merge(final String newFileSource, final File existingFile, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember)
             throws FileNotFoundException {
         log.info("合并JAVA代码: 已存在的文件-{}", existingFile.getAbsolutePath());
-//        final CompilationUnit newCompilationUnit      = StaticJavaParser.parse(JavaSourceUtils.format(newFileSource));
-        final CompilationUnit newCompilationUnit      = StaticJavaParser.parse(newFileSource);
-//        LexicalPreservingPrinter.setup(newCompilationUnit);    // 新代码需要保留原来格式
+        final CompilationUnit newCompilationUnit      = StaticJavaParser.parse(JavaSourceUtils.format(newFileSource));
         final CompilationUnit existingCompilationUnit = StaticJavaParser.parse(existingFile);
         LexicalPreservingPrinter.setup(existingCompilationUnit);    // 已存在的代码需要保留原来格式
         return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTagsOfAutoGen, javadocTagsOfRemovedMember);
@@ -129,19 +127,10 @@ public class MergeJavaFileUtils {
             oldClassOrInterface.getComment().ifPresent(oldComment -> {
                 // 如果旧代码是JavaDoc注释
                 if (oldComment.isJavadocComment()) {
-                    // 如果新代码没有注释，或旧代码不含有自动生成的注解，直接替换新代码的注释
-                    if (!newClassOrInterface.getComment().isPresent() || hasTag(oldComment.asJavadocComment(), javadocTagsOfAutoGen)) {
-//                        newClassOrInterface.setComment(oldComment);
-                    }
-                    // 否则使用新代码的注释，但是添加旧代码手工添加的注解
-                    else {
-//                        newClassOrInterface.setComment(mergeJavadocTags(oldComment.asJavadocComment(), newClassOrInterface.getComment().get().asJavadocComment()));
+                    // 如果新代码有注释，且旧代码含有自动生成的注解，直接使用新代码的注释，但是添加旧代码手工添加的注解
+                    if (newClassOrInterface.getComment().isPresent() && hasTag(oldComment.asJavadocComment(), javadocTagsOfAutoGen)) {
                         oldClassOrInterface.setComment(mergeJavadocTags(oldComment.asJavadocComment(), newClassOrInterface.getComment().get().asJavadocComment()));
                     }
-                }
-                // 如果旧代码不是JavaDoc注释，直接替换新代码的注释
-                else {
-//                    newClassOrInterface.setComment(oldComment);
                 }
             });
 
@@ -171,6 +160,13 @@ public class MergeJavaFileUtils {
             }
 
             log.info("使用新的类或接口的代码替换旧代码");
+            oldClassOrInterface.setInterface(newClassOrInterface.isInterface());
+            oldClassOrInterface.setPrivate(newClassOrInterface.isPrivate());
+            oldClassOrInterface.setProtected(newClassOrInterface.isProtected());
+            oldClassOrInterface.setPublic(newClassOrInterface.isPublic());
+            oldClassOrInterface.setAbstract(newClassOrInterface.isAbstract());
+            oldClassOrInterface.setFinal(newClassOrInterface.isFinal());
+            oldClassOrInterface.setStatic(newClassOrInterface.isStatic());
             oldClassOrInterface.setModifiers(newClassOrInterface.getModifiers());
             oldClassOrInterface.setName(newClassOrInterface.getName());
             oldClassOrInterface.setExtendedTypes(newClassOrInterface.getExtendedTypes());
@@ -312,9 +308,9 @@ public class MergeJavaFileUtils {
                 }
             }
 
-//            for (final BodyDeclaration<?> oldMember : oldMembers) {
-//                oldClassOrInterface.remove(oldMember);
-//            }
+            // for (final BodyDeclaration<?> oldMember : oldMembers) {
+            // oldClassOrInterface.remove(oldMember);
+            // }
         }
 
         // 移除没有用的import
@@ -322,7 +318,7 @@ public class MergeJavaFileUtils {
 
         // 返回源代码
         return JavaSourceUtils.print(oldCompilationUnit);
-//        return oldCompilationUnit.toString();
+        // return oldCompilationUnit.toString();
     }
 
     /**
@@ -433,14 +429,14 @@ public class MergeJavaFileUtils {
         return null;
     }
 
-//    /**
-//     * 将参数列表转成String[]
-//     *
-//     * @param paramTypes 参数列表
-//     * @return String[]
-//     */
-//    private static String[] paramTypeToStrings(final List<Type> paramTypes) {
-//        return paramTypes.stream().map(Type::asString).toArray(String[]::new);
-//    }
+    // /**
+    // * 将参数列表转成String[]
+    // *
+    // * @param paramTypes 参数列表
+    // * @return String[]
+    // */
+    // private static String[] paramTypeToStrings(final List<Type> paramTypes) {
+    // return paramTypes.stream().map(Type::asString).toArray(String[]::new);
+    // }
 
 }
