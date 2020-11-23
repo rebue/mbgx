@@ -16,12 +16,13 @@ import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinte
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class JavaSourceUtils {
+public class JavaParserUtils {
 
     /**
      * 移除没有用的import，并返回优化处理后的代码
      *
      * @param sourceCode 源代码内容
+     * 
      * @return 优化处理后的代码内容
      */
     public static void removeUnusedImports(final CompilationUnit compilationUnit) {
@@ -30,7 +31,7 @@ public class JavaSourceUtils {
         final NodeList<ImportDeclaration> newImports = new NodeList<>();
         compilationUnit.setImports(newImports);
 
-        final Set<String>      classNames  = new HashSet<>();
+        final Set<String> classNames = new HashSet<>();
         // 获取类
         final List<SimpleName> simpleNames = compilationUnit.findAll(SimpleName.class);
         for (final SimpleName simpleName : simpleNames) {
@@ -74,6 +75,7 @@ public class JavaSourceUtils {
      * 移除没有用的import，并返回优化处理后的代码
      *
      * @param sourceCode 源代码内容
+     * 
      * @return 优化处理后的代码内容
      */
     public static String removeUnusedImports(final String sourceCode) {
@@ -91,11 +93,12 @@ public class JavaSourceUtils {
      * 格式化源码
      *
      * @param sourceCode 源代码
+     * 
      * @return 格式化后的代码
      */
     public static String format(final String sourceCode) {
         final PrettyPrinterConfiguration prettyPrinterConfiguration = new PrettyPrinterConfiguration();
-        prettyPrinterConfiguration.setOrderImports(true);               // 排序imports
+        prettyPrinterConfiguration.setOrderImports(true); // 排序imports
         return StaticJavaParser.parse(sourceCode).toString(prettyPrinterConfiguration);
     }
 
