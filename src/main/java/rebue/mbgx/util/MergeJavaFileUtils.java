@@ -35,7 +35,7 @@ public class MergeJavaFileUtils {
      * @param existingFileFullPath       已存在的代码文件的全路径
      * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
      * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
-     * 
+     *
      * @return 合并后的新内容
      */
     public static String merge(final String newFileSource, final String existingFileFullPath, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember)
@@ -50,7 +50,7 @@ public class MergeJavaFileUtils {
      * @param existingFile               已存在的代码文件
      * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
      * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
-     * 
+     *
      * @return 合并后的新内容
      */
     public static String merge(final String newFileSource, final File existingFile, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember)
@@ -69,7 +69,7 @@ public class MergeJavaFileUtils {
      * @param oldCompilationUnit         已存在代码的编译器
      * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
      * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
-     * 
+     *
      * @return 合并后的内容
      */
     private static String mergeCompilationUnit(final CompilationUnit newCompilationUnit, final CompilationUnit oldCompilationUnit, final String[] javadocTagsOfAutoGen,
@@ -316,7 +316,8 @@ public class MergeJavaFileUtils {
         JavaParserUtils.removeUnusedImports(oldCompilationUnit);
 
         // 返回源代码
-        return JdtUtils.format(JavaParserUtils.print(oldCompilationUnit));
+        // return JdtUtils.format(JavaParserUtils.print(oldCompilationUnit));
+        return JdtUtils.format(oldCompilationUnit.toString());
         // return GoogleJavaFormatUtils.format(JavaParserUtils.print(oldCompilationUnit));
     }
 
@@ -324,7 +325,7 @@ public class MergeJavaFileUtils {
      * 获取Javadoc中的注解
      *
      * @param javadocComment Javadoc的注释
-     * 
+     *
      * @return Javadoc中的注解列表
      */
     private static List<JavadocBlockTag> getTags(final JavadocComment javadocComment) {
@@ -337,7 +338,7 @@ public class MergeJavaFileUtils {
      *
      * @param javadocTags JavaDoc的Tag列表
      * @param tags        判断是否包含的注解
-     * 
+     *
      * @return 是否有Javadoc注释，且里面包含指定的注解
      */
     private static boolean hasTag(final List<JavadocBlockTag> javadocTags, final String[] tags) {
@@ -356,7 +357,7 @@ public class MergeJavaFileUtils {
      *
      * @param javadocComment Javadoc的注释
      * @param tags           判断是否包含的注解
-     * 
+     *
      * @return 是否包含
      */
     private static boolean hasTag(final JavadocComment javadocComment, final String[] tags) {
@@ -369,7 +370,7 @@ public class MergeJavaFileUtils {
      *
      * @param node 节点
      * @param tags 判断是否包含的注解
-     * 
+     *
      * @return 是否有Javadoc注释，且里面包含指定的注解
      */
     private static boolean hasTag(final Node node, final String[] tags) {
@@ -386,7 +387,7 @@ public class MergeJavaFileUtils {
      *
      * @param srcJavadocComment 源注释
      * @param dstJavadocComment 目的注释
-     * 
+     *
      * @return 合并后的注释
      */
     private static JavadocComment mergeJavadocTags(final JavadocComment srcJavadocComment, final JavadocComment dstJavadocComment) {
