@@ -10,7 +10,7 @@
 			<!-- <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" 
 				/> -->
 			<PatternLayout
-				pattern="%d{hh:mm:ss,sss}[%5p]%m --- %l %t%n" />
+				pattern="%d{HH:mm:ss,sss}[%5p]%m --- %l %t%n" />
 		</Console>
 
 		<!-- 输出debug/info/warn/error到文件，按天或者超过5MB分割 -->
