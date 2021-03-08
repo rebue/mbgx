@@ -2,6 +2,7 @@ package rebue.mbgx.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class MergeJavaFileUtils {
     public static String merge(final String newFileSource, final File existingFile, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember)
         throws FileNotFoundException {
         log.info("合并JAVA代码: 已存在的文件-{}", existingFile.getAbsolutePath());
-        final CompilationUnit newCompilationUnit = StaticJavaParser.parse(JavaParserUtils.format(newFileSource));
+        final CompilationUnit newCompilationUnit      = StaticJavaParser.parse(JavaParserUtils.format(newFileSource));
         final CompilationUnit existingCompilationUnit = StaticJavaParser.parse(existingFile);
         LexicalPreservingPrinter.setup(existingCompilationUnit);    // 已存在的代码需要保留原来格式
         return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTagsOfAutoGen, javadocTagsOfRemovedMember);
@@ -108,7 +109,7 @@ public class MergeJavaFileUtils {
         final List<ClassOrInterfaceDeclaration> classOrInterfaces = newCompilationUnit.findAll(ClassOrInterfaceDeclaration.class);
         for (final ClassOrInterfaceDeclaration newClassOrInterface : classOrInterfaces) {
             // 新的类或接口的名称
-            final String classOrInterfaceName = newClassOrInterface.getNameAsString();
+            final String                                classOrInterfaceName        = newClassOrInterface.getNameAsString();
             // 根据新类或接口获取旧类或接口
             final Optional<ClassOrInterfaceDeclaration> oldClassOrInterfaceOptional = newClassOrInterface.isInterface()
                 ? oldCompilationUnit.getInterfaceByName(classOrInterfaceName)
@@ -145,7 +146,7 @@ public class MergeJavaFileUtils {
                     log.info("获取要移除的成员列表");
                     for (final String tag : javadocTagsOfRemovedMember) {
                         if (javadocTag.getTagName().equals(tag.substring(1))) {
-                            removedMembers.add(javadocTag.getContent().toText());
+                            removedMembers.addAll(Arrays.asList(javadocTag.getContent().toText().split(",")));
                             break;
                         }
                     }
@@ -180,8 +181,8 @@ public class MergeJavaFileUtils {
             final NodeList<BodyDeclaration<?>> newMembers = newClassOrInterface.getMembers();
 
             log.info("旧类或接口中删除在新类或接口中已经不存在的自动生成的成员");
-            final NodeList<BodyDeclaration<?>> oldMembers = oldClassOrInterface.getMembers();
-            final List<BodyDeclaration<?>> toRemoveMembers = new LinkedList<>();
+            final NodeList<BodyDeclaration<?>> oldMembers      = oldClassOrInterface.getMembers();
+            final List<BodyDeclaration<?>>     toRemoveMembers = new LinkedList<>();
             for (final BodyDeclaration<?> oldMember : oldMembers) {
                 // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不删除此成员
                 final Optional<Comment> oldCommentOptional = oldMember.getComment();
@@ -192,9 +193,9 @@ public class MergeJavaFileUtils {
                 // 如果是字段
                 if (oldMember.isFieldDeclaration()) {
                     // 新字段
-                    final FieldDeclaration oldField = oldMember.asFieldDeclaration();
+                    final FieldDeclaration           oldField         = oldMember.asFieldDeclaration();
                     // 获取字段的名称
-                    final String fieldName = getFieldName(oldField);
+                    final String                     fieldName        = getFieldName(oldField);
                     // 新代码中的字段
                     final Optional<FieldDeclaration> newFieldOptional = newClassOrInterface.getFieldByName(fieldName);
                     if (!newFieldOptional.isPresent()) {
@@ -205,9 +206,9 @@ public class MergeJavaFileUtils {
                 // 如果是方法(包含构造方法)
                 else if (oldMember.isCallableDeclaration()) {
                     // 新方法
-                    final CallableDeclaration<?> oldCallable = oldMember.asCallableDeclaration();
+                    final CallableDeclaration<?> oldCallable  = oldMember.asCallableDeclaration();
                     // 获取新方法的名称
-                    final String callableName = oldCallable.getNameAsString();
+                    final String                 callableName = oldCallable.getNameAsString();
                     log.info("当前成员是方法: {}", callableName);
 
                     // 获取旧方法的签名
@@ -231,11 +232,11 @@ public class MergeJavaFileUtils {
                 // 如果是字段
                 if (newMember.isFieldDeclaration()) {
                     // 新字段
-                    final FieldDeclaration newField = newMember.asFieldDeclaration();
+                    final FieldDeclaration newField     = newMember.asFieldDeclaration();
                     // 获取字段的类型
-                    final String newFieldType = getFieldType(newField);
+                    final String           newFieldType = getFieldType(newField);
                     // 获取字段的名称
-                    final String newFieldName = getFieldName(newField);
+                    final String           newFieldName = getFieldName(newField);
                     log.info("当前成员是字段: {} {}", newFieldType, newFieldName);
 
                     if (removedMembers.contains(newFieldName)) {
@@ -270,9 +271,9 @@ public class MergeJavaFileUtils {
                 // 如果是方法(包含构造方法)
                 else if (newMember.isCallableDeclaration()) {
                     // 新方法
-                    final CallableDeclaration<?> newCallable = newMember.asCallableDeclaration();
+                    final CallableDeclaration<?> newCallable     = newMember.asCallableDeclaration();
                     // 获取新方法的名称
-                    final String newCallableName = newCallable.getNameAsString();
+                    final String                 newCallableName = newCallable.getNameAsString();
                     log.info("当前成员是方法: {}", newCallableName);
 
                     if (removedMembers.contains(newCallableName)) {
