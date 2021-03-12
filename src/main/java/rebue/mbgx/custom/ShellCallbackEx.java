@@ -34,7 +34,7 @@ public class ShellCallbackEx extends DefaultShellCallback {
             if (existingFile.getName().endsWith("Mapper.java") || existingFile.getName().endsWith("DynamicSqlSupport.java")) {
                 return newFileSource;
             }
-            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags);
+            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteTags);
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);

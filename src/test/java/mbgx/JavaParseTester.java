@@ -31,9 +31,9 @@ public class JavaParseTester {
     }
 
     public static byte[] getBytesFromFile(final String filePath) throws IOException {
-        final File file = new File(filePath);
+        final File            file            = new File(filePath);
         final FileInputStream fileInputStream = new FileInputStream(file);
-        final byte[] data = new byte[(int) file.length()];
+        final byte[]          data            = new byte[(int) file.length()];
         try (DataInputStream dataInputStream = new DataInputStream(fileInputStream)) {
             dataInputStream.readFully(data);
         }
@@ -46,17 +46,18 @@ public class JavaParseTester {
     @Test
     public void Test01() throws IOException {
         // 初始化代码
-        final ClasspathResourceLoader resourceLoader = new ClasspathResourceLoader();
-        final Configuration cfg = Configuration.defaultConfiguration();
-        final GroupTemplate gt = new GroupTemplate(resourceLoader, cfg);
+        final ClasspathResourceLoader resourceLoader       = new ClasspathResourceLoader();
+        final Configuration           cfg                  = Configuration.defaultConfiguration();
+        final GroupTemplate           gt                   = new GroupTemplate(resourceLoader, cfg);
         // 获取模板
-        final Template t = gt.getTemplate("Hello.btl");
-//        t.binding("name", "beetl");
+        final Template                t                    = gt.getTemplate("Hello.btl");
+        // t.binding("name", "beetl");
         // 渲染结果
-        final String newFileSource = t.render();
+        final String                  newFileSource        = t.render();
 
-        final String existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
-        final String mergeText = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, TagsCo.autoGenTags, TagsCo.removedMemberTags);
+        final String                  existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
+        final String                  mergeText            = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, TagsCo.autoGenTags, TagsCo.removedMemberTags,
+                TagsCo.dontOverWriteTags);
         _log.debug(mergeText);
     }
 }
