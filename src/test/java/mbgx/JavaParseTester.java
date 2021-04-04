@@ -1,5 +1,11 @@
 package mbgx;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
 import org.beetl.core.Template;
@@ -7,14 +13,9 @@ import org.beetl.core.resource.ClasspathResourceLoader;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rebue.mbgx.TagsCo;
-import rebue.mbgx.util.MergeJavaFileUtils;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import rebue.mbgx.co.TagsCo;
+import rebue.mbgx.util.MergeJavaFileUtils;
 
 public class JavaParseTester {
     private final static Logger _log = LoggerFactory.getLogger(JavaParseTester.class);
@@ -57,7 +58,7 @@ public class JavaParseTester {
 
         final String                  existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
         final String                  mergeText            = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, TagsCo.autoGenTags, TagsCo.removedMemberTags,
-                TagsCo.dontOverWriteTags);
+                TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags);
         _log.debug(mergeText);
     }
 }

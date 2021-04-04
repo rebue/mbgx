@@ -1,19 +1,5 @@
 package rebue.mbgx.util;
 
-import com.github.javaparser.StaticJavaParser;
-import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
-import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.NodeList;
-import com.github.javaparser.ast.body.*;
-import com.github.javaparser.ast.comments.Comment;
-import com.github.javaparser.ast.comments.JavadocComment;
-import com.github.javaparser.ast.expr.AnnotationExpr;
-import com.github.javaparser.javadoc.Javadoc;
-import com.github.javaparser.javadoc.JavadocBlockTag;
-import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
-import lombok.extern.slf4j.Slf4j;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -21,60 +7,86 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.CallableDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.comments.JavadocComment;
+import com.github.javaparser.javadoc.Javadoc;
+import com.github.javaparser.javadoc.JavadocBlockTag;
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 public class MergeJavaFileUtils {
 
     /**
      * 合并Java代码 将已存在的Java文件中的手工添加的部分合并进新模板的Java代码
      *
-     * @param newFileSource              新代码文件的内容
-     * @param existingFileFullPath       已存在的代码文件的全路径
-     * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param newFileSource                       新代码文件的内容
+     * @param existingFileFullPath                已存在的代码文件的全路径
+     * @param javadocTagsOfAutoGen                标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param javadocTagsOfRemovedMember          标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param javadocTagsOfDontOverWriteFile      标识不要重写此文件的注解(放在最上方的文档注释中)
+     * @param javadocTagsOfDontOverWriteAnnotaion 不覆盖注解
      *
      * @return 合并后的新内容
      */
     public static String merge(final String newFileSource, final String existingFileFullPath, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember,
-            final String[] javadocTagsOfDontOverwrite)
+            final String[] javadocTagsOfDontOverWriteFile, final String[] javadocTagsOfDontOverWriteAnnotaion)
             throws FileNotFoundException {
-        return merge(newFileSource, new File(existingFileFullPath), javadocTagsOfAutoGen, javadocTagsOfRemovedMember, javadocTagsOfDontOverwrite);
+        return merge(newFileSource, new File(existingFileFullPath), javadocTagsOfAutoGen, javadocTagsOfRemovedMember, javadocTagsOfDontOverWriteFile,
+                javadocTagsOfDontOverWriteAnnotaion);
     }
 
     /**
      * 合并Java代码
      *
-     * @param newFileSource              新代码文件的内容
-     * @param existingFile               已存在的代码文件
-     * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param newFileSource                       新代码文件的内容
+     * @param existingFile                        已存在的代码文件
+     * @param javadocTagsOfAutoGen                标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param javadocTagsOfRemovedMember          标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param javadocTagsOfDontOverWriteFile      标识不要重写此文件的注解(放在最上方的文档注释中)
+     * @param javadocTagsOfDontOverWriteAnnotaion 不覆盖注解
      *
      * @return 合并后的新内容
      */
     public static String merge(final String newFileSource, final File existingFile, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember,
-            final String[] javadocTagsOfDontOverwrite)
+            final String[] javadocTagsOfDontOverWriteFile, final String[] javadocTagsOfDontOverWriteAnnotaion)
             throws FileNotFoundException {
         log.info("合并JAVA代码: 已存在的文件-{}", existingFile.getAbsolutePath());
         final CompilationUnit newCompilationUnit      = StaticJavaParser.parse(JavaParserUtils.format(newFileSource));
         final CompilationUnit existingCompilationUnit = StaticJavaParser.parse(existingFile);
         LexicalPreservingPrinter.setup(existingCompilationUnit);    // 已存在的代码需要保留原来格式
-        return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTagsOfAutoGen, javadocTagsOfRemovedMember, javadocTagsOfDontOverwrite);
+        return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTagsOfAutoGen, javadocTagsOfRemovedMember, javadocTagsOfDontOverWriteFile,
+                javadocTagsOfDontOverWriteAnnotaion);
     }
 
     /**
      * 合并Java代码
      *
-     * @param newCompilationUnit         新代码的编译器
-     * @param oldCompilationUnit         已存在代码的编译器
-     * @param javadocTagsOfAutoGen       标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember 标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param newCompilationUnit                  新代码的编译器
+     * @param oldCompilationUnit                  已存在代码的编译器
+     * @param javadocTagsOfAutoGen                标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param javadocTagsOfRemovedMember          标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param javadocTagsOfDontOverWriteFile      标识不要重写此文件的注解(放在最上方的文档注释中)
+     * @param javadocTagsOfDontOverWriteAnnotaion 不覆盖注解
      *
      * @return 合并后的内容
      */
     private static String mergeCompilationUnit(final CompilationUnit newCompilationUnit, final CompilationUnit oldCompilationUnit, final String[] javadocTagsOfAutoGen,
-            final String[] javadocTagsOfRemovedMember, final String[] javadocTagsOfDontOverwrite) {
+            final String[] javadocTagsOfRemovedMember, final String[] javadocTagsOfDontOverWriteFile, final String[] javadocTagsOfDontOverWriteAnnotaion) {
         final Optional<Comment> oldCommentOfPackage = oldCompilationUnit.getComment();
         // 如果旧注释中含有不覆盖的注解，才用新代码的注释
-        if (oldCommentOfPackage.isPresent() && hasTag(oldCommentOfPackage.get(), javadocTagsOfDontOverwrite)) {
+        if (oldCommentOfPackage.isPresent() && hasTag(oldCommentOfPackage.get(), javadocTagsOfDontOverWriteFile)) {
             return oldCompilationUnit.toString();
         }
 
@@ -155,17 +167,11 @@ public class MergeJavaFileUtils {
                 }
             }));
 
-            log.info("合并类或接口的注解");
-            OUTLOOP: for (final AnnotationExpr newAnnotation : newClassOrInterface.getAnnotations()) {
-                for (final AnnotationExpr oldAnnotation : oldClassOrInterface.getAnnotations()) {
-                    if (oldAnnotation.getName().equals(newAnnotation.getName())) {
-                        continue OUTLOOP;
-                    }
-                }
-                oldClassOrInterface.getAnnotations().add(newAnnotation);
-            }
-
             log.info("使用新的类或接口的代码替换旧代码");
+            // 判断是否覆盖旧代码中的注解
+            if (!hasTag(oldClassOrInterface, javadocTagsOfDontOverWriteAnnotaion)) {
+                oldClassOrInterface.setAnnotations(newClassOrInterface.getAnnotations());
+            }
             oldClassOrInterface.setInterface(newClassOrInterface.isInterface());
             oldClassOrInterface.setPrivate(newClassOrInterface.isPrivate());
             oldClassOrInterface.setProtected(newClassOrInterface.isProtected());
@@ -266,6 +272,11 @@ public class MergeJavaFileUtils {
                     // 将旧注释中手工添加的注解加入新注释中
                     newMember.setComment(mergeJavadocTags(oldCommentOptional.get().asJavadocComment(), newMember.getComment().get().asJavadocComment()));
 
+                    // 判断是否不要覆盖旧成员的注解
+                    if (hasTag(newMember, javadocTagsOfDontOverWriteAnnotaion)) {
+                        newMember.setAnnotations(oldField.getAnnotations());
+                    }
+
                     // 替换字段
                     oldClassOrInterface.replace(oldField, newMember);
 
@@ -308,6 +319,11 @@ public class MergeJavaFileUtils {
 
                     // 将旧注释中手工添加的注解加入新注释中
                     newMember.setComment(mergeJavadocTags(oldCommentOptional.get().asJavadocComment(), newMember.getComment().get().asJavadocComment()));
+
+                    // 判断是否不要覆盖旧成员的注解
+                    if (hasTag(newMember, javadocTagsOfDontOverWriteAnnotaion)) {
+                        newMember.setAnnotations(oldCallable.getAnnotations());
+                    }
 
                     // 替换方法
                     oldClassOrInterface.replace(oldCallable, newMember);

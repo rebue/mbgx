@@ -1,12 +1,13 @@
 package rebue.mbgx.custom;
 
-import org.mybatis.generator.exception.ShellException;
-import org.mybatis.generator.internal.DefaultShellCallback;
-import rebue.mbgx.TagsCo;
-import rebue.mbgx.util.MergeJavaFileUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+
+import org.mybatis.generator.exception.ShellException;
+import org.mybatis.generator.internal.DefaultShellCallback;
+
+import rebue.mbgx.co.TagsCo;
+import rebue.mbgx.util.MergeJavaFileUtils;
 
 /**
  * <pre>
@@ -34,7 +35,7 @@ public class ShellCallbackEx extends DefaultShellCallback {
             if (existingFile.getName().endsWith("Mapper.java") || existingFile.getName().endsWith("DynamicSqlSupport.java")) {
                 return newFileSource;
             }
-            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteTags);
+            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags);
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);

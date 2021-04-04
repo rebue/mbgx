@@ -1,8 +1,19 @@
 package rebue.mbgx.plugin.codegen;
 
-import com.alibaba.fastjson.JSON;
-import com.google.common.io.Files;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.beetl.core.Configuration;
 import org.beetl.core.GroupTemplate;
@@ -13,19 +24,19 @@ import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
-import rebue.mbgx.TagsCo;
-import rebue.mbgx.po.ForeignKeyPo;
-import rebue.mbgx.util.*;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.alibaba.fastjson.JSON;
+import com.google.common.io.Files;
+
+import lombok.extern.slf4j.Slf4j;
+import rebue.mbgx.co.TagsCo;
+import rebue.mbgx.po.ForeignKeyPo;
+import rebue.mbgx.util.IntrospectedUtils;
+import rebue.mbgx.util.JdbcUtils;
+import rebue.mbgx.util.JdtUtils;
+import rebue.mbgx.util.MergeJavaFileUtils;
+import rebue.mbgx.util.PathUtils;
+import rebue.mbgx.util.RemarksUtils;
 
 /**
  * 利用beetl生成代码的插件
@@ -254,7 +265,8 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     }
                     log.info("5.5.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
-                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, TagsCo.autoGenTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteTags);
+                        sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, TagsCo.autoGenTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags,
+                                TagsCo.dontOverWriteAnnotationTags);
                     }
                 }
                 else {
