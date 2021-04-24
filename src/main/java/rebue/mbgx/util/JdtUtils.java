@@ -17,7 +17,7 @@ import org.eclipse.text.edits.TextEdit;
 import org.xml.sax.SAXException;
 
 import lombok.extern.slf4j.Slf4j;
-import rebue.wheel.XmlUtils;
+import rebue.wheel.serialization.xml.XmlUtils;
 
 @Slf4j
 public class JdtUtils {
@@ -26,6 +26,7 @@ public class JdtUtils {
      * 格式化源码
      *
      * @param sourceCode 源代码
+     * 
      * @return 格式化后的代码
      */
     public static String format(final String sourceCode) {
