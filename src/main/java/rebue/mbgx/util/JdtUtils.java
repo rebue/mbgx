@@ -26,14 +26,14 @@ public class JdtUtils {
      * 格式化源码
      *
      * @param sourceCode 源代码
-     * 
+     *
      * @return 格式化后的代码
      */
     public static String format(final String sourceCode) {
         // 将解析结果存储在Map中
         final Map<String, Object> options = new LinkedHashMap<>();
         try {
-            final org.dom4j.Document document    = XmlUtils.getDocument(GoogleJavaFormatUtils.class.getResourceAsStream("/conf/java-code-format-options.xml"));
+            final org.dom4j.Document document    = XmlUtils.getDocument(JdtUtils.class.getResourceAsStream("/conf/java-code-format-options.xml"));
             final List<Node>         settingList = document.selectNodes("/profiles/profile/setting");
             for (final Node setting : settingList) {
                 final Element element = (Element) setting;

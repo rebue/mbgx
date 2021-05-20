@@ -31,8 +31,8 @@ public class ShellCallbackEx extends DefaultShellCallback {
     @Override
     public String mergeJavaFile(final String newFileSource, final File existingFile, final String[] javadocTags, final String fileEncoding) throws ShellException {
         try {
-            // TODO 目前1.4.0版本的Mapper和DynamicSqlSupport不支持合并代码，所以规范暂时要求不要修改Mapper和DynamicSqlSupport的代码
-            if (existingFile.getName().endsWith("Mapper.java") || existingFile.getName().endsWith("DynamicSqlSupport.java")) {
+            // TODO 目前1.4.0版本的DynamicSqlSupport合并代码有BUG，会重复生成一个静态类并放在根节点，所以规范暂时要求不要修改DynamicSqlSupport的代码
+            if (existingFile.getName().endsWith("DynamicSqlSupport.java")) {
                 return newFileSource;
             }
             return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags);
