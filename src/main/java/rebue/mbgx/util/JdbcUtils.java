@@ -1,17 +1,22 @@
 package rebue.mbgx.util;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.JDBCConnectionConfiguration;
 import org.mybatis.generator.internal.util.JavaBeansUtil;
+
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import rebue.mbgx.po.ColumnPo;
 import rebue.mbgx.po.ForeignKeyPo;
 import rebue.mbgx.po.TablePo;
-
-import java.sql.*;
-import java.util.LinkedList;
-import java.util.List;
 
 @Slf4j
 public class JdbcUtils {
@@ -19,25 +24,25 @@ public class JdbcUtils {
     /**
      * 是否已经初始化
      */
-    private static boolean _isInit = false;
+    private static boolean                  _isInit         = false;
 
     /**
      * 表的List
      */
     @Getter
-    private final static List<TablePo> tableList = new LinkedList<>();
+    private final static List<TablePo>      tableList       = new LinkedList<>();
     /**
      * 中间表的List(item为表名字符串)
      */
     @Getter
-    private final static List<String> middleTableList = new LinkedList<>();
+    private final static List<String>       middleTableList = new LinkedList<>();
     /**
      * 外键的List
      */
     @Getter
-    private final static List<ForeignKeyPo> foreignKeyList = new LinkedList<>();
+    private final static List<ForeignKeyPo> foreignKeyList  = new LinkedList<>();
 
-    public static void init(Context context) {
+    public static void init(final Context context) {
         if (!_isInit) {
             try {
                 final JDBCConnectionConfiguration conf = context.getJdbcConnectionConfiguration();
@@ -45,12 +50,13 @@ public class JdbcUtils {
                 Class.forName(conf.getDriverClass());
                 log.info("获取数据库连接");
                 try (Connection conn = DriverManager.getConnection(conf.getConnectionURL(), conf.getUserId(), conf.getPassword())) {
-                    final String catalog = conn.getCatalog();
-                    final DatabaseMetaData databaseMetaData = conn.getMetaData();
-                    final ResultSet databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[]{"TABLE"});
+                    final String           catalog           = conn.getCatalog();
+                    final DatabaseMetaData databaseMetaData  = conn.getMetaData();
+                    final ResultSet        databaseResultSet = databaseMetaData.getTables(catalog, null, null, new String[] { "TABLE"
+                    });
                     log.info("开始遍历表");
                     while (databaseResultSet.next()) {
-                        TablePo table = new TablePo();
+                        final TablePo table = new TablePo();
                         tableList.add(table);
                         table.setName(databaseResultSet.getString("TABLE_NAME"));
 
@@ -58,7 +64,7 @@ public class JdbcUtils {
                         final ResultSet columnResultSet = databaseMetaData.getColumns(catalog, null, table.getName(), null);
 
                         while (columnResultSet.next()) {
-                            ColumnPo column = new ColumnPo();
+                            final ColumnPo column = new ColumnPo();
                             column.setName(columnResultSet.getString("COLUMN_NAME"));
                             column.setRemark(columnResultSet.getString("REMARKS"));
                             column.setTitle(RemarksUtils.getTitleByRemarks(column.getRemark()));
@@ -83,7 +89,7 @@ public class JdbcUtils {
                             final String fkBeanName = JavaBeansUtil.getCamelCaseString(table.getName(), false);
                             foreignKey.setFkBeanName(fkBeanName);
 
-                            for (ColumnPo column : table.getColumns()) {
+                            for (final ColumnPo column : table.getColumns()) {
                                 if (column.getName().equalsIgnoreCase(foreignKey.getFkFieldName())) {
                                     // 获取字段标题
                                     String title = column.getTitle();
@@ -118,16 +124,18 @@ public class JdbcUtils {
     }
 
     /**
-     * 判断是否是中间表（目前根据遍历所有字段属性名，如果都是以Id结尾，那么是中间表，否则只要有一个不是，都不是中间表）
+     * 判断是否是中间表（目前根据遍历所有字段属性名，如果都是以Id结尾，那么是中间表，否则只要有一个不是，都不是中间表；只有一个ID字段，没有其它字段的也不是中间表）
      */
     private static Boolean isMiddleTable(final TablePo table) {
-        for (ColumnPo column : table.getColumns()) {
+        if (table.getColumns().size() == 1) {
+            return false;
+        }
+        for (final ColumnPo column : table.getColumns()) {
             if (!column.getName().equals("ID") && !column.getName().endsWith("_ID")) {
                 return false;
             }
         }
         return true;
     }
-
 
 }
