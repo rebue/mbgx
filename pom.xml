@@ -75,6 +75,10 @@
 			<artifactId>org.eclipse.jdt.ui</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.eclipse.platform</groupId>
+			<artifactId>org.eclipse.text</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
 		</dependency>
