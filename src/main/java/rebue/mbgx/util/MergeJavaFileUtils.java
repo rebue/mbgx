@@ -31,62 +31,76 @@ public class MergeJavaFileUtils {
     /**
      * 合并Java代码 将已存在的Java文件中的手工添加的部分合并进新模板的Java代码
      *
-     * @param newFileSource                       新代码文件的内容
-     * @param existingFileFullPath                已存在的代码文件的全路径
-     * @param javadocTagsOfAutoGen                标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember          标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
-     * @param javadocTagsOfDontOverWriteFile      标识不要重写此文件的注解(放在最上方的文档注释中)
-     * @param javadocTagsOfDontOverWriteAnnotaion 不覆盖注解
+     * @param newFileSource               新代码文件的内容
+     * @param existingFileFullPath        已存在的代码文件的全路径
+     * @param autoGenTags                 标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param removedMemberTags           标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param dontOverWriteFileTags       标识不要重写此文件的注解(放在最上方的文档注释中)
+     * @param dontOverWriteAnnotaionTags  不覆盖注解
+     * @param dontOverWriteExtendsTags    不覆盖extends
+     * @param dontOverWriteImplementsTags 不覆盖implements
      *
      * @return 合并后的新内容
+     *
+     * @throws FileNotFoundException
      */
-    public static String merge(final String newFileSource, final String existingFileFullPath, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember,
-            final String[] javadocTagsOfDontOverWriteFile, final String[] javadocTagsOfDontOverWriteAnnotaion)
-            throws FileNotFoundException {
-        return merge(newFileSource, new File(existingFileFullPath), javadocTagsOfAutoGen, javadocTagsOfRemovedMember, javadocTagsOfDontOverWriteFile,
-                javadocTagsOfDontOverWriteAnnotaion);
+    public static String merge(final String newFileSource, final String existingFileFullPath, final String[] autoGenTags, final String[] removedMemberTags,
+                               final String[] dontOverWriteFileTags, final String[] dontOverWriteAnnotaionTags, final String[] dontOverWriteExtendsTags,
+                               final String[] dontOverWriteImplementsTags)
+        throws FileNotFoundException {
+        return merge(newFileSource, new File(existingFileFullPath), autoGenTags, removedMemberTags, dontOverWriteFileTags,
+            dontOverWriteAnnotaionTags, dontOverWriteExtendsTags, dontOverWriteImplementsTags);
     }
 
     /**
      * 合并Java代码
      *
-     * @param newFileSource                       新代码文件的内容
-     * @param existingFile                        已存在的代码文件
-     * @param javadocTagsOfAutoGen                标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember          标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
-     * @param javadocTagsOfDontOverWriteFile      标识不要重写此文件的注解(放在最上方的文档注释中)
-     * @param javadocTagsOfDontOverWriteAnnotaion 不覆盖注解
+     * @param newFileSource               新代码文件的内容
+     * @param existingFile                已存在的代码文件
+     * @param autoGenTags                 标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param removedMemberTags           标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param dontOverWriteFileTags       标识不要重写此文件的注解(放在最上方的文档注释中)
+     * @param dontOverWriteAnnotaionTags  不覆盖注解
+     * @param dontOverWriteExtendsTags    不覆盖extends
+     * @param dontOverWriteImplementsTags 不覆盖implements
      *
      * @return 合并后的新内容
+     *
+     * @throws FileNotFoundException
      */
-    public static String merge(final String newFileSource, final File existingFile, final String[] javadocTagsOfAutoGen, final String[] javadocTagsOfRemovedMember,
-            final String[] javadocTagsOfDontOverWriteFile, final String[] javadocTagsOfDontOverWriteAnnotaion)
-            throws FileNotFoundException {
+    public static String merge(final String newFileSource, final File existingFile, final String[] autoGenTags, final String[] removedMemberTags,
+                               final String[] dontOverWriteFileTags, final String[] dontOverWriteAnnotaionTags, final String[] dontOverWriteExtendsTags,
+                               final String[] dontOverWriteImplementsTags)
+        throws FileNotFoundException {
         log.info("合并JAVA代码: 已存在的文件-{}", existingFile.getAbsolutePath());
         final CompilationUnit newCompilationUnit      = StaticJavaParser.parse(JavaParserUtils.format(newFileSource));
         final CompilationUnit existingCompilationUnit = StaticJavaParser.parse(existingFile);
         LexicalPreservingPrinter.setup(existingCompilationUnit);    // 已存在的代码需要保留原来格式
-        return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, javadocTagsOfAutoGen, javadocTagsOfRemovedMember, javadocTagsOfDontOverWriteFile,
-                javadocTagsOfDontOverWriteAnnotaion);
+        return mergeCompilationUnit(newCompilationUnit, existingCompilationUnit, autoGenTags, removedMemberTags, dontOverWriteFileTags,
+            dontOverWriteAnnotaionTags, dontOverWriteExtendsTags, dontOverWriteImplementsTags);
     }
 
     /**
      * 合并Java代码
      *
-     * @param newCompilationUnit                  新代码的编译器
-     * @param oldCompilationUnit                  已存在代码的编译器
-     * @param javadocTagsOfAutoGen                标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
-     * @param javadocTagsOfRemovedMember          标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
-     * @param javadocTagsOfDontOverWriteFile      标识不要重写此文件的注解(放在最上方的文档注释中)
-     * @param javadocTagsOfDontOverWriteAnnotaion 不覆盖注解
+     * @param newCompilationUnit          新代码的编译器
+     * @param oldCompilationUnit          已存在代码的编译器
+     * @param autoGenTags                 标识自动生成的代码的注解(将此数组中的任意注解放在节点的Javadoc注释中表示此成员是自动生成的)
+     * @param removedMemberTags           标识要删除成员的注解(将此数组中的任意注解加上成员名称放在类或接口的Javadoc注释中表示此成员不要自动生成)
+     * @param dontOverWriteFileTags       标识不要重写此文件的注解(放在最上方的文档注释中)
+     * @param dontOverWriteAnnotaionTags  不覆盖注解
+     * @param dontOverWriteExtendsTags    不覆盖extends
+     * @param dontOverWriteImplementsTags 不覆盖implements
      *
      * @return 合并后的内容
      */
-    private static String mergeCompilationUnit(final CompilationUnit newCompilationUnit, final CompilationUnit oldCompilationUnit, final String[] javadocTagsOfAutoGen,
-            final String[] javadocTagsOfRemovedMember, final String[] javadocTagsOfDontOverWriteFile, final String[] javadocTagsOfDontOverWriteAnnotaion) {
+    private static String mergeCompilationUnit(final CompilationUnit newCompilationUnit, final CompilationUnit oldCompilationUnit, final String[] autoGenTags,
+                                               final String[] removedMemberTags, final String[] dontOverWriteFileTags,
+                                               final String[] dontOverWriteAnnotaionTags, final String[] dontOverWriteExtendsTags,
+                                               final String[] dontOverWriteImplementsTags) {
         final Optional<Comment> oldCommentOfPackage = oldCompilationUnit.getComment();
         // 如果旧注释中含有不覆盖的注解，才用新代码的注释
-        if (oldCommentOfPackage.isPresent() && hasTag(oldCommentOfPackage.get(), javadocTagsOfDontOverWriteFile)) {
+        if (oldCommentOfPackage.isPresent() && hasTag(oldCommentOfPackage.get(), dontOverWriteFileTags)) {
             return oldCompilationUnit.toString();
         }
 
@@ -96,7 +110,7 @@ public class MergeJavaFileUtils {
             // 如果旧代码中有注释，判断是否需要用新代码的注释来代替
             if (oldCommentOfPackage.isPresent()) {
                 // 如果是JavaDoc注释，且含有自动生成的注解，才用新代码的注释
-                if (oldCommentOfPackage.get().isJavadocComment() && hasTag(oldCommentOfPackage.get(), javadocTagsOfAutoGen)) {
+                if (oldCommentOfPackage.get().isJavadocComment() && hasTag(oldCommentOfPackage.get(), autoGenTags)) {
                     oldCompilationUnit.setComment(newComment);
                 }
             }
@@ -126,8 +140,8 @@ public class MergeJavaFileUtils {
             final String                                classOrInterfaceName        = newClassOrInterface.getNameAsString();
             // 根据新类或接口获取旧类或接口
             final Optional<ClassOrInterfaceDeclaration> oldClassOrInterfaceOptional = newClassOrInterface.isInterface()
-                    ? oldCompilationUnit.getInterfaceByName(classOrInterfaceName)
-                    : oldCompilationUnit.getClassByName(classOrInterfaceName);
+                ? oldCompilationUnit.getInterfaceByName(classOrInterfaceName)
+                : oldCompilationUnit.getClassByName(classOrInterfaceName);
 
             // 如果旧代码没有此类或接口，则添加此类或接口
             if (!oldClassOrInterfaceOptional.isPresent()) {
@@ -146,7 +160,7 @@ public class MergeJavaFileUtils {
                 // 如果旧代码是JavaDoc注释
                 if (oldComment.isJavadocComment()) {
                     // 如果新代码有注释，且旧代码含有自动生成的注解，直接使用新代码的注释，但是添加旧代码手工添加的注解
-                    if (newClassOrInterface.getComment().isPresent() && hasTag(oldComment.asJavadocComment(), javadocTagsOfAutoGen)) {
+                    if (newClassOrInterface.getComment().isPresent() && hasTag(oldComment.asJavadocComment(), autoGenTags)) {
                         oldClassOrInterface.setComment(mergeJavadocTags(oldComment.asJavadocComment(), newClassOrInterface.getComment().get().asJavadocComment()));
                     }
                 }
@@ -158,7 +172,7 @@ public class MergeJavaFileUtils {
                 final List<JavadocBlockTag> javadocTags = getTags(javadocComment);
                 for (final JavadocBlockTag javadocTag : javadocTags) {
                     log.info("获取要移除的成员列表");
-                    for (final String tag : javadocTagsOfRemovedMember) {
+                    for (final String tag : removedMemberTags) {
                         if (javadocTag.getTagName().equals(tag.substring(1))) {
                             removedMembers.addAll(Arrays.asList(javadocTag.getContent().toText().replace(" ", "").replace("，", ",").split("[,;]")));
                             break;
@@ -169,8 +183,16 @@ public class MergeJavaFileUtils {
 
             log.info("使用新的类或接口的代码替换旧代码");
             // 判断是否覆盖旧代码中的注解
-            if (!hasTag(oldClassOrInterface, javadocTagsOfDontOverWriteAnnotaion)) {
+            if (!hasTag(oldClassOrInterface, dontOverWriteAnnotaionTags)) {
                 oldClassOrInterface.setAnnotations(newClassOrInterface.getAnnotations());
+            }
+            // 判断是否覆盖extends
+            if (!hasTag(oldClassOrInterface, dontOverWriteExtendsTags)) {
+                oldClassOrInterface.setExtendedTypes(newClassOrInterface.getExtendedTypes());
+            }
+            // 判断是否覆盖implements
+            if (!hasTag(oldClassOrInterface, dontOverWriteImplementsTags)) {
+                oldClassOrInterface.setImplementedTypes(newClassOrInterface.getImplementedTypes());
             }
             oldClassOrInterface.setInterface(newClassOrInterface.isInterface());
             oldClassOrInterface.setPrivate(newClassOrInterface.isPrivate());
@@ -181,8 +203,6 @@ public class MergeJavaFileUtils {
             oldClassOrInterface.setStatic(newClassOrInterface.isStatic());
             oldClassOrInterface.setModifiers(newClassOrInterface.getModifiers());
             oldClassOrInterface.setName(newClassOrInterface.getName());
-            oldClassOrInterface.setExtendedTypes(newClassOrInterface.getExtendedTypes());
-            oldClassOrInterface.setImplementedTypes(newClassOrInterface.getImplementedTypes());
             oldClassOrInterface.setTypeParameters(newClassOrInterface.getTypeParameters());
 
             log.info("合并类或接口的成员");
@@ -194,7 +214,7 @@ public class MergeJavaFileUtils {
             for (final BodyDeclaration<?> oldMember : oldMembers) {
                 // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不删除此成员
                 final Optional<Comment> oldCommentOptional = oldMember.getComment();
-                if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment() || !hasTag(oldCommentOptional.get().asJavadocComment(), javadocTagsOfAutoGen)) {
+                if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment() || !hasTag(oldCommentOptional.get().asJavadocComment(), autoGenTags)) {
                     continue;
                 }
 
@@ -265,7 +285,7 @@ public class MergeJavaFileUtils {
                     // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不替换此成员
                     final Optional<Comment> oldCommentOptional = oldField.getComment();
                     if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment()
-                            || !hasTag(oldCommentOptional.get().asJavadocComment(), javadocTagsOfAutoGen)) {
+                        || !hasTag(oldCommentOptional.get().asJavadocComment(), autoGenTags)) {
                         continue;
                     }
 
@@ -273,7 +293,7 @@ public class MergeJavaFileUtils {
                     newMember.setComment(mergeJavadocTags(oldCommentOptional.get().asJavadocComment(), newMember.getComment().get().asJavadocComment()));
 
                     // 判断是否不要覆盖旧成员的注解
-                    if (hasTag(newMember, javadocTagsOfDontOverWriteAnnotaion)) {
+                    if (hasTag(newMember, dontOverWriteAnnotaionTags)) {
                         newMember.setAnnotations(oldField.getAnnotations());
                     }
 
@@ -313,7 +333,7 @@ public class MergeJavaFileUtils {
                     // 如果没有注释，或不是javadoc注释，或不包含自动生成注解，则不替换此成员
                     final Optional<Comment> oldCommentOptional = oldCallable.getComment();
                     if (!oldCommentOptional.isPresent() || !oldCommentOptional.get().isJavadocComment()
-                            || !hasTag(oldCommentOptional.get().asJavadocComment(), javadocTagsOfAutoGen)) {
+                        || !hasTag(oldCommentOptional.get().asJavadocComment(), autoGenTags)) {
                         continue;
                     }
 
@@ -321,7 +341,7 @@ public class MergeJavaFileUtils {
                     newMember.setComment(mergeJavadocTags(oldCommentOptional.get().asJavadocComment(), newMember.getComment().get().asJavadocComment()));
 
                     // 判断是否不要覆盖旧成员的注解
-                    if (hasTag(newMember, javadocTagsOfDontOverWriteAnnotaion)) {
+                    if (hasTag(newMember, dontOverWriteAnnotaionTags)) {
                         newMember.setAnnotations(oldCallable.getAnnotations());
                     }
 

@@ -35,7 +35,8 @@ public class ShellCallbackEx extends DefaultShellCallback {
             if (existingFile.getName().endsWith("DynamicSqlSupport.java")) {
                 return newFileSource;
             }
-            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags);
+            return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags,
+                TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);

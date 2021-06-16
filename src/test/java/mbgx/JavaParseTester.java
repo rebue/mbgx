@@ -58,7 +58,7 @@ public class JavaParseTester {
 
         final String                  existingFileFullPath = getProjectPath() + "/src/test/java/mbgx/Hello.java";
         final String                  mergeText            = MergeJavaFileUtils.merge(newFileSource, existingFileFullPath, TagsCo.autoGenTags, TagsCo.removedMemberTags,
-                TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags);
+            TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags, TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
         _log.debug(mergeText);
     }
 }

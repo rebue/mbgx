@@ -266,7 +266,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
                     log.info("5.5.2.3 如果是java文件，那么合并文件");
                     if (targetFile.getName().endsWith(".java")) {
                         sTarget = MergeJavaFileUtils.merge(sTarget, targetFile, TagsCo.autoGenTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags,
-                                TagsCo.dontOverWriteAnnotationTags);
+                            TagsCo.dontOverWriteAnnotationTags, TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
                     }
                 }
                 else {
@@ -300,7 +300,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * @param sCamelCase
      *                   要处理的字符串（必须按驼峰的命名风格）
-     * 
+     *
      * @return 得到第一个单词
      */
     private String getFirstWord(final String sCamelCase) {
@@ -317,7 +317,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
     /**
      * @param sCamelCase
      *                   要处理的字符串（必须按驼峰的命名风格）
-     * 
+     *
      * @return 去掉第一个单词
      */
     private String removeFirstWord(final String sCamelCase) {
