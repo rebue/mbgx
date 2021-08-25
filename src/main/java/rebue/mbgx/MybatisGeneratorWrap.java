@@ -10,6 +10,7 @@ import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
 import rebue.mbgx.custom.ProgressCallbackEx;
 import rebue.mbgx.custom.ShellCallbackEx;
+import rebue.mbgx.util.PathUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,7 +48,7 @@ public class MybatisGeneratorWrap {
         final Configuration config = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
 
         // 兼容eclipse和idea的路径问题
-        String rootPath = Paths.get(MybatisGeneratorWrap.class.getResource("/").getPath()).getParent().getParent().getParent().toAbsolutePath().toString();
+        String rootPath = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);
         String targetProject = Paths.get(rootPath, config.getContext("comm").getJavaModelGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
         config.getContext("comm").getJavaModelGeneratorConfiguration().setTargetProject(targetProject);
         targetProject = Paths.get(rootPath, config.getContext("comm").getJavaClientGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();

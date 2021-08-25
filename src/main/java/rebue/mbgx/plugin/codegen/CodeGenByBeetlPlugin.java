@@ -247,7 +247,7 @@ public class CodeGenByBeetlPlugin extends PluginAdapter {
             log.info("5.5. 将渲染结果输出到文件");
             String targetDir = templateCfg.getTargetDir();
             if (!PathUtils.isAbsPath(targetDir)) {
-                final String rootPath = Paths.get(CodeGenByBeetlPlugin.class.getResource("/").getPath()).getParent().getParent().getParent().toAbsolutePath().toString();
+                String rootPath = PathUtils.getProjectRoot(CodeGenByBeetlPlugin.class);
                 targetDir = Paths.get(rootPath, targetDir).toAbsolutePath().toString();
             }
             final File targetFile = new File(targetDir, templateCfg.getTargetFile());
