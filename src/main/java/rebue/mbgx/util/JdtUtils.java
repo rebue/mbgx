@@ -49,7 +49,7 @@ public class JdtUtils {
     private static org.dom4j.Document parseJavaFormatFile() throws Exception
     {
         if (File.separator.equals("\\")) {
-            String xmlStr = ResourcesWrapper.fileStr("/conf/java-code-format-options.xml");
+            String xmlStr = ResourcesWrapper.fileStr("/conf/java-code-format-options.xml", JdtUtils.class);
             return DocumentHelper.parseText(xmlStr);
         } else {
             return XmlUtils.getDocument(JdtUtils.class.getResourceAsStream("/conf/java-code-format-options.xml"));
