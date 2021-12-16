@@ -1,7 +1,10 @@
 package rebue.mbgx.util;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -10,15 +13,11 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
+
+import lombok.SneakyThrows;
 import rebue.wheel.core.ResourcesWrapper;
 import rebue.wheel.serialization.xml.XmlUtils;
 
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-@Slf4j
 public class JdtUtils {
 
     /**
