@@ -32,9 +32,10 @@ public class ModelRootInterfacePlugin extends PluginAdapter {
         // 获取ModelRootInterface类型
         final FullyQualifiedJavaType fullyQualifiedJavaType = new FullyQualifiedJavaType("Mo");
         topLevelClass.addImportedType(new FullyQualifiedJavaType("rebue.robotech.mo.Mo"));
+        topLevelClass.addImportedType(new FullyQualifiedJavaType("com.fasterxml.jackson.annotation.JsonIgnore"));
 
         // 添加ID类型的泛型
-        final FullyQualifiedJavaType idType = getPrimaryKeyType(introspectedTable);
+        final FullyQualifiedJavaType idType        = getPrimaryKeyType(introspectedTable);
         final FullyQualifiedJavaType parameterType = idType;
         topLevelClass.addImportedType(parameterType);
         fullyQualifiedJavaType.addTypeArgument(parameterType);
@@ -49,6 +50,7 @@ public class ModelRootInterfacePlugin extends PluginAdapter {
         method.addJavaDocLine("* @mbg.generated 自动生成，如需修改，请删除本行");
         method.addJavaDocLine("*/");
         method.addAnnotation("@Override");
+        method.addAnnotation("@JsonIgnore");
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(new FullyQualifiedJavaType("java.lang.String"));
         method.addBodyLine("return \"" + idType.getShortName() + "\";");
@@ -60,6 +62,7 @@ public class ModelRootInterfacePlugin extends PluginAdapter {
      * 获取主键所对应的Java类型
      *
      * @param introspectedTable
+     * 
      * @return
      */
     private FullyQualifiedJavaType getPrimaryKeyType(final IntrospectedTable introspectedTable) {
