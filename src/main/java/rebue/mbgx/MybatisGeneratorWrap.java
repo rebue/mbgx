@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.MyBatisGenerator;
 import org.mybatis.generator.api.ShellCallback;
 import org.mybatis.generator.config.Configuration;
+import org.mybatis.generator.config.Context;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
@@ -43,18 +44,27 @@ public class MybatisGeneratorWrap {
             }
         }
 
-        final List<String> warnings = new ArrayList<>();
-        final ConfigurationParser parser = new ConfigurationParser(properties, warnings);
-        final Configuration config = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
+        final List<String>        warnings = new ArrayList<>();
+        final ConfigurationParser parser   = new ConfigurationParser(properties, warnings);
+        final Configuration       config   = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
+
+        Context commContext = null;
+        for (Context context : config.getContexts()) {
+            if ("comm".equals(context.getId())) {
+                commContext = context;
+                break;
+            }
+        }
+        if (commContext == null) throw new RuntimeException("conf/mbg-comm.xml文件没有id为comm的context");
 
         // 兼容eclipse和idea的路径问题
-        String rootPath = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);
-        String targetProject = Paths.get(rootPath, config.getContext("comm").getJavaModelGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
-        config.getContext("comm").getJavaModelGeneratorConfiguration().setTargetProject(targetProject);
-        targetProject = Paths.get(rootPath, config.getContext("comm").getJavaClientGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
-        config.getContext("comm").getJavaClientGeneratorConfiguration().setTargetProject(targetProject);
+        String rootPath      = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);
+        String targetProject = Paths.get(rootPath, commContext.getJavaModelGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
+        commContext.getJavaModelGeneratorConfiguration().setTargetProject(targetProject);
+        targetProject = Paths.get(rootPath, commContext.getJavaClientGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
+        commContext.getJavaClientGeneratorConfiguration().setTargetProject(targetProject);
 
-        final ShellCallback callback = new ShellCallbackEx(overwrite);
+        final ShellCallback    callback  = new ShellCallbackEx(overwrite);
         final MyBatisGenerator generator = new MyBatisGenerator(config, callback, warnings);
         generator.generate(new ProgressCallbackEx());
 

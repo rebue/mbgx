@@ -1,19 +1,18 @@
 package rebue.mbgx.util;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.Name;
 import com.github.javaparser.ast.expr.SimpleName;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
-
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class JavaParserUtils {
@@ -22,7 +21,6 @@ public class JavaParserUtils {
      * 移除没有用的import，并返回优化处理后的代码
      *
      * @param sourceCode 源代码内容
-     * 
      * @return 优化处理后的代码内容
      */
     public static void removeUnusedImports(final CompilationUnit compilationUnit) {
@@ -49,7 +47,8 @@ public class JavaParserUtils {
             }
         }
         log.debug(classNames.toString());
-        OUTLOOP: for (final ImportDeclaration oldImport : oldImports) {
+        OUTLOOP:
+        for (final ImportDeclaration oldImport : oldImports) {
             if (oldImport.isAsterisk()) {
                 log.info("带*号的import，无法判断，直接添加");
                 newImports.add(oldImport);
@@ -75,7 +74,6 @@ public class JavaParserUtils {
      * 移除没有用的import，并返回优化处理后的代码
      *
      * @param sourceCode 源代码内容
-     * 
      * @return 优化处理后的代码内容
      */
     public static String removeUnusedImports(final String sourceCode) {
@@ -93,7 +91,6 @@ public class JavaParserUtils {
      * 格式化源码
      *
      * @param sourceCode 源代码
-     * 
      * @return 格式化后的代码
      */
     public static String format(final String sourceCode) {
