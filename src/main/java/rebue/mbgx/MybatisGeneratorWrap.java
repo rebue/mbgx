@@ -11,13 +11,11 @@ import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
 import rebue.mbgx.custom.ProgressCallbackEx;
 import rebue.mbgx.custom.ShellCallbackEx;
-import rebue.mbgx.util.PathUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,11 +70,11 @@ public class MybatisGeneratorWrap {
         if (commContext == null) throw new RuntimeException(MBGX_CONFIG_FILE + "文件没有id为comm的context");
 
         // 兼容eclipse和idea的路径问题
-        String rootPath      = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);
-        String targetProject = Paths.get(rootPath, commContext.getJavaModelGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
-        commContext.getJavaModelGeneratorConfiguration().setTargetProject(targetProject);
-        targetProject = Paths.get(rootPath, commContext.getJavaClientGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
-        commContext.getJavaClientGeneratorConfiguration().setTargetProject(targetProject);
+//        String rootPath      = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);
+//        String targetProject = Paths.get(rootPath, commContext.getJavaModelGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
+//        commContext.getJavaModelGeneratorConfiguration().setTargetProject(targetProject);
+//        targetProject = Paths.get(rootPath, commContext.getJavaClientGeneratorConfiguration().getTargetProject()).toAbsolutePath().toString();
+//        commContext.getJavaClientGeneratorConfiguration().setTargetProject(targetProject);
 
         final ShellCallback    callback  = new ShellCallbackEx(overwrite);
         final MyBatisGenerator generator = new MyBatisGenerator(config, callback, warnings);
