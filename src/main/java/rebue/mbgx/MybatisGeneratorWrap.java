@@ -16,6 +16,7 @@ import rebue.mbgx.util.PathUtils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class MybatisGeneratorWrap {
             throws IOException, XMLParserException, InvalidConfigurationException, SQLException, InterruptedException {
         // 获取类路径（配置文件在此路径下）
         final String sClassPath = Objects.requireNonNull(MybatisGeneratorWrap.class.getClassLoader().getResource("")).getPath();
-
+        Path         configDir  = Path.of(sClassPath, "conf");
         // 读取属性文件
         final Properties properties = new Properties();
         for (final String sPropFilePath : sPropFiles.split(",")) {
@@ -44,9 +45,20 @@ public class MybatisGeneratorWrap {
             }
         }
 
+        gen(configDir, overwrite, properties);
+    }
+
+    /**
+     * @param configDir  配置目录路径
+     * @param overwrite  是否覆盖原来的文件，<br>
+     *                   true，直接覆盖已经存在的原文件<br>
+     *                   false，不覆盖原文件，但是会添加一个文件，是原来文件名+".1"(.2.3.4.5一直排下去)
+     * @param properties properties列表
+     */
+    public static void gen(Path configDir, final boolean overwrite, final Properties properties) throws XMLParserException, IOException, InvalidConfigurationException, SQLException, InterruptedException {
         final List<String>        warnings = new ArrayList<>();
         final ConfigurationParser parser   = new ConfigurationParser(properties, warnings);
-        final Configuration       config   = parser.parseConfiguration(new File(sClassPath + "conf/mbg-comm.xml"));
+        final Configuration       config   = parser.parseConfiguration(new File(configDir.resolve("mbg-comm.xml").toString()));
 
         Context commContext = null;
         for (Context context : config.getContexts()) {
@@ -55,7 +67,7 @@ public class MybatisGeneratorWrap {
                 break;
             }
         }
-        if (commContext == null) throw new RuntimeException("conf/mbg-comm.xml文件没有id为comm的context");
+        if (commContext == null) throw new RuntimeException("mbg-comm.xml文件没有id为comm的context");
 
         // 兼容eclipse和idea的路径问题
         String rootPath      = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);
