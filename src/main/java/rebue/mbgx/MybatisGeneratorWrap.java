@@ -26,6 +26,8 @@ import java.util.Properties;
 
 @Slf4j
 public class MybatisGeneratorWrap {
+    private final static String MBGX_CONFIG_FILE = "mbgx-comm.xml";
+
     /**
      * @param overwrite  是否覆盖原来的文件，<br>
      *                   true，直接覆盖已经存在的原文件<br>
@@ -58,7 +60,7 @@ public class MybatisGeneratorWrap {
     public static void gen(Path configDir, final boolean overwrite, final Properties properties) throws XMLParserException, IOException, InvalidConfigurationException, SQLException, InterruptedException {
         final List<String>        warnings = new ArrayList<>();
         final ConfigurationParser parser   = new ConfigurationParser(properties, warnings);
-        final Configuration       config   = parser.parseConfiguration(new File(configDir.resolve("mbg-comm.xml").toString()));
+        final Configuration       config   = parser.parseConfiguration(new File(configDir.resolve(MBGX_CONFIG_FILE).toString()));
 
         Context commContext = null;
         for (Context context : config.getContexts()) {
@@ -67,7 +69,7 @@ public class MybatisGeneratorWrap {
                 break;
             }
         }
-        if (commContext == null) throw new RuntimeException("mbg-comm.xml文件没有id为comm的context");
+        if (commContext == null) throw new RuntimeException(MBGX_CONFIG_FILE + "文件没有id为comm的context");
 
         // 兼容eclipse和idea的路径问题
         String rootPath      = PathUtils.getProjectRoot(MybatisGeneratorWrap.class);

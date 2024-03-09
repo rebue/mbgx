@@ -19,14 +19,15 @@ public class JdtUtils {
     /**
      * 格式化源码
      *
-     * @param sourceCode 源代码
+     * @param sourceCode        源代码
+     * @param formatOptionsFile 格式化选项配置文件
      * @return 格式化后的代码
      */
     @SneakyThrows
-    public static String format(final String sourceCode) {
+    public static String format(final String sourceCode, String formatOptionsFile) {
         // 将解析结果存储在Map中
         final Map<String, Object> options     = new LinkedHashMap<>();
-        org.dom4j.Document        document    = parseJavaFormatFile();
+        org.dom4j.Document        document    = parseJavaFormatFile(formatOptionsFile);
         final List<Node>          settingList = document.selectNodes("/profiles/profile/setting");
         for (final Node setting : settingList) {
             final Element element = (Element) setting;
@@ -40,8 +41,8 @@ public class JdtUtils {
         return doc.get();
     }
 
-    private static org.dom4j.Document parseJavaFormatFile() throws Exception {
-        return XmlUtils.getDocument(JdtUtils.class.getResourceAsStream("/conf/java-code-format-options.xml"));
+    private static org.dom4j.Document parseJavaFormatFile(String formatOptionsFile) throws Exception {
+        return XmlUtils.getDocument(JdtUtils.class.getResourceAsStream(formatOptionsFile));
     }
 
 }
