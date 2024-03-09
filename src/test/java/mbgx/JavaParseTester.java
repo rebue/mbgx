@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rebue.mbgx.co.TagsCo;
-import rebue.mbgx.util.MergeJavaFileUtils;
+import rebue.wheel.core.source.MergeJavaFileUtils;
 
 import java.io.DataInputStream;
 import java.io.File;

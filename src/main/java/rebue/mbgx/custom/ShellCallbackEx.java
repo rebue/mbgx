@@ -3,7 +3,7 @@ package rebue.mbgx.custom;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 import rebue.mbgx.co.TagsCo;
-import rebue.mbgx.util.MergeJavaFileUtils;
+import rebue.wheel.core.source.MergeJavaFileUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
