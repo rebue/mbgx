@@ -1,10 +1,10 @@
 package rebue.mbgx.plugin;
 
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+
+import java.util.List;
 
 /**
  * 给Model类加上Jackson注解的插件

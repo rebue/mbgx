@@ -1,13 +1,12 @@
 package rebue.mbgx.plugin;
 
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
-
 import rebue.mbgx.generator.SelectSelectiveMethodGenerator;
+
+import java.util.List;
 
 /**
  * 给Mapper及其XML文件加上selectSelective()方法的插件

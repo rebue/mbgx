@@ -11,13 +11,11 @@ public class PathUtils {
      * @param path 需要判断的路径
      * @return 是否是绝对路径，如果是false，则说明是相对路径
      */
-    public final static boolean isAbsPath(String path)
-    {
+    public final static boolean isAbsPath(String path) {
         return FileSystems.getDefault().getPath(path).isAbsolute();
     }
 
-    public static String getProjectRoot(Class<?> clazz)
-    {
+    public static String getProjectRoot(Class<?> clazz) {
         String path = clazz.getResource("/").getPath();
         if (File.separator.equals("\\") && path.startsWith("/")) {
             path = path.substring(1);

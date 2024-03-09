@@ -1,14 +1,14 @@
 package rebue.mbgx.plugin;
 
-import java.sql.Types;
-import java.util.List;
-
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.Plugin;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+
+import java.sql.Types;
+import java.util.List;
 
 /**
  * <pre>
@@ -25,8 +25,8 @@ public class DateTimeFormatPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(final Field field, final TopLevelClass topLevelClass,
-            final IntrospectedColumn introspectedColumn, final IntrospectedTable introspectedTable,
-            final Plugin.ModelClassType modelClassType) {
+                                       final IntrospectedColumn introspectedColumn, final IntrospectedTable introspectedTable,
+                                       final Plugin.ModelClassType modelClassType) {
         if (Types.DATE == introspectedColumn.getJdbcType()) {
             addDateAnnotations(field, topLevelClass);
         } else if (Types.TIME == introspectedColumn.getJdbcType()) {

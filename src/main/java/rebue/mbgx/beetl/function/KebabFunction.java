@@ -6,9 +6,8 @@ import org.beetl.core.Function;
 /**
  * 将驼峰格式转换为羊肉串格式
  * 例如：helloWorld 变成 hello-world
- * 
- * @author zbz
  *
+ * @author zbz
  */
 public class KebabFunction implements Function {
 

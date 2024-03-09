@@ -7,42 +7,37 @@
  * 下面有XXX注释的是修改源码的地方
  *
  * @author zbz
- *         <p>
- *         Copyright 2006-2019 the original author or authors.
- *         <p>
- *         Licensed under the Apache License, Version 2.0 (the "License");
- *         you may not use this file except in compliance with the License.
- *         You may obtain a copy of the License at
- *         <p>
- *         http://www.apache.org/licenses/LICENSE-2.0
- *         <p>
- *         Unless required by applicable law or agreed to in writing, software
- *         distributed under the License is distributed on an "AS IS" BASIS,
- *         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *         See the License for the specific language governing permissions and
- *         limitations under the License.
+ * <p>
+ * Copyright 2006-2019 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package rebue.mbgx.plugin;
-
-import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
-import static org.mybatis.generator.internal.util.StringUtility.isTrue;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.IntrospectedTable.TargetRuntime;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.OutputUtilities;
-import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
-import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
-import org.mybatis.generator.api.dom.java.TopLevelClass;
-
+import org.mybatis.generator.api.dom.java.*;
 import rebue.mbgx.util.IntrospectedUtils;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+
+import static org.mybatis.generator.internal.util.JavaBeansUtil.getGetterMethodName;
+import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 
 /**
  * This plugin adds equals() and hashCode() methods to the generated model
@@ -80,7 +75,7 @@ public class MyEqualsHashCodePlugin extends PluginAdapter {
 
     @Override
     public boolean modelBaseRecordClassGenerated(final TopLevelClass topLevelClass,
-            final IntrospectedTable introspectedTable) {
+                                                 final IntrospectedTable introspectedTable) {
         List<IntrospectedColumn> columns;
         if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
             columns = introspectedTable.getNonBLOBColumns();
@@ -96,7 +91,7 @@ public class MyEqualsHashCodePlugin extends PluginAdapter {
 
     @Override
     public boolean modelPrimaryKeyClassGenerated(final TopLevelClass topLevelClass,
-            final IntrospectedTable introspectedTable) {
+                                                 final IntrospectedTable introspectedTable) {
         generateEquals(topLevelClass, introspectedTable.getPrimaryKeyColumns(), introspectedTable);
         generateHashCode(topLevelClass, introspectedTable.getPrimaryKeyColumns(), introspectedTable);
 
@@ -105,7 +100,7 @@ public class MyEqualsHashCodePlugin extends PluginAdapter {
 
     @Override
     public boolean modelRecordWithBLOBsClassGenerated(final TopLevelClass topLevelClass,
-            final IntrospectedTable introspectedTable) {
+                                                      final IntrospectedTable introspectedTable) {
         generateEquals(topLevelClass, introspectedTable.getAllColumns(), introspectedTable);
         generateHashCode(topLevelClass, introspectedTable.getAllColumns(), introspectedTable);
 
@@ -129,7 +124,7 @@ public class MyEqualsHashCodePlugin extends PluginAdapter {
      * @param introspectedTable   the table corresponding to this class
      */
     protected void generateEquals(final TopLevelClass topLevelClass, final List<IntrospectedColumn> introspectedColumns,
-            final IntrospectedTable introspectedTable) {
+                                  final IntrospectedTable introspectedTable) {
         final Method method = new Method("equals"); //$NON-NLS-1$
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getBooleanPrimitiveInstance());
@@ -244,7 +239,7 @@ public class MyEqualsHashCodePlugin extends PluginAdapter {
      * @param introspectedTable   the table corresponding to this class
      */
     protected void generateHashCode(final TopLevelClass topLevelClass,
-            final List<IntrospectedColumn> introspectedColumns, final IntrospectedTable introspectedTable) {
+                                    final List<IntrospectedColumn> introspectedColumns, final IntrospectedTable introspectedTable) {
         final Method method = new Method("hashCode"); //$NON-NLS-1$
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());

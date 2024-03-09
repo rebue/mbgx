@@ -1,20 +1,19 @@
 package rebue.mbgx.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RemarksUtils {
     private final static Logger _log = LoggerFactory.getLogger(RemarksUtils.class);
 
     /**
      * 通过备注得到标题（有些标题是名称+（1-xxx,2-xxx），去掉后面的内容来取得名称）
-     * 
-     * @param remarks
-     *            字段或表的备注
+     *
+     * @param remarks 字段或表的备注
      * @return
      */
     public static String getTitleByRemarks(final String remarks) {
@@ -35,7 +34,7 @@ public class RemarksUtils {
 
     /**
      * 获取根据换行符拼接的备注
-     * 
+     *
      * @param remarks
      * @return
      */

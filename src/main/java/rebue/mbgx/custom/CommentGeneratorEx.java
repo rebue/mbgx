@@ -141,7 +141,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 添加表的文档注释
      */
     private void addJavadocOfTable(final JavaElement javaElement, final IntrospectedTable introspectedTable) {
-        final String remarks = introspectedTable.getRemarks();
+        final String remarks = introspectedTable.getRemarks().replaceAll("\\\\n", "\n");
 
         javaElement.addJavaDocLine("/**");
 
@@ -165,7 +165,7 @@ public class CommentGeneratorEx implements CommentGenerator {
      * 添加字段的文档注释
      */
     private void addJavadocOfField(final JavaElement javaElement, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn) {
-        final String remarks = introspectedColumn.getRemarks();
+        final String remarks = introspectedColumn.getRemarks().replaceAll("\\\\n", "\n");
 
         javaElement.addJavaDocLine("/**");
 

@@ -1,8 +1,8 @@
 package rebue.mbgx.util;
 
-import java.sql.Types;
-
 import org.mybatis.generator.api.IntrospectedColumn;
+
+import java.sql.Types;
 
 public class BooleanUtils {
     /**
@@ -12,14 +12,14 @@ public class BooleanUtils {
      */
     public static boolean isBooleanColumn(final IntrospectedColumn column) {
         switch (column.getJdbcType()) {
-        case Types.CHAR:
-        case Types.TINYINT:
-            // if (column.getLength() == 1 &&
-            // column.getActualColumnName().startsWith("IS_")) {
-            // 上面判断字段的长度，如果是在mysql下有bug，mysql会取出长度为3，而不是1
-            if (column.getActualColumnName().startsWith("IS_")) {
-                return true;
-            }
+            case Types.CHAR:
+            case Types.TINYINT:
+                // if (column.getLength() == 1 &&
+                // column.getActualColumnName().startsWith("IS_")) {
+                // 上面判断字段的长度，如果是在mysql下有bug，mysql会取出长度为3，而不是1
+                if (column.getActualColumnName().startsWith("IS_")) {
+                    return true;
+                }
         }
         return false;
 

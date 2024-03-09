@@ -1,13 +1,12 @@
 package rebue.mbgx.custom;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
-
 import rebue.mbgx.co.TagsCo;
 import rebue.mbgx.util.MergeJavaFileUtils;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * <pre>
@@ -36,7 +35,7 @@ public class ShellCallbackEx extends DefaultShellCallback {
                 return newFileSource;
             }
             return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags,
-                TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
+                    TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
         } catch (final FileNotFoundException e) {
             e.printStackTrace();
             throw new ShellException(e);
