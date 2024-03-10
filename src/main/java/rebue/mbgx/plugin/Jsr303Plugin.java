@@ -34,12 +34,12 @@ public class Jsr303Plugin extends PluginAdapter {
             final String groups = "groups = " + (IntrospectedUtils.isPrimaryKey(introspectedColumn, introspectedTable) ? "ModifyGroup.class" : "AddGroup.class");
             // 如果是字符串类型，添加 @NotBlank 注解
             if (introspectedColumn.isStringColumn()) {
-                topLevelClass.addImportedType("javax.validation.constraints.NotBlank");
+                topLevelClass.addImportedType("jakarta.validation.constraints.NotBlank");
                 field.addAnnotation("@NotBlank(" + groups + ", message = \"" + RemarksUtils.getTitleByRemarks(remarks) + "不能为空\")");
             }
             // 如果是非字符串类型，添加 @NotNull 注解
             else {
-                topLevelClass.addImportedType("javax.validation.constraints.NotNull");
+                topLevelClass.addImportedType("jakarta.validation.constraints.NotNull");
                 field.addAnnotation("@NotNull(" + groups + ", message = \"" + RemarksUtils.getTitleByRemarks(remarks) + "不能为空\")");
             }
         }
@@ -53,7 +53,7 @@ public class Jsr303Plugin extends PluginAdapter {
 
         // 如果是无符号类型，添加 @Min(...) 符号，限制为非负数
         if (introspectedColumn.getActualTypeName().contains("UNSIGNED")) {
-            topLevelClass.addImportedType("javax.validation.constraints.PositiveOrZero");
+            topLevelClass.addImportedType("jakarta.validation.constraints.PositiveOrZero");
             field.addAnnotation("@PositiveOrZero(message = \"" + RemarksUtils.getTitleByRemarks(remarks) + "不能为负数\")");
         }
 
