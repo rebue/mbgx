@@ -14,7 +14,7 @@ public class SelectInMethodGenerator extends AbstractJavaMapperMethodGenerator {
     public void addInterfaceElements(final Interface interfaze) {
         final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
-        importedTypes.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.SqlBuilder.isIn"));
+        importedTypes.add(new FullyQualifiedJavaType("static org.mybatis.dynamic.sql.SqlBuilder.isIn"));
 
         final Method method = new Method("selectIn");                                                  //$NON-NLS-1$
         method.setDefault(true);

@@ -14,7 +14,7 @@ public class ExistByPrimaryKeyMethodGenerator extends AbstractJavaMapperMethodGe
     public void addInterfaceElements(final Interface interfaze) {
         final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
-
+        importedTypes.add(new FullyQualifiedJavaType("static org.mybatis.dynamic.sql.SqlBuilder.isEqualTo"));
         final Method method = new Method("existByPrimaryKey");                      //$NON-NLS-1$
         method.setDefault(true);
         method.setVisibility(JavaVisibility.PUBLIC);

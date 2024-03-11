@@ -14,6 +14,7 @@ public class CountSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
     public void addInterfaceElements(final Interface interfaze) {
         final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
 //        importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
+        importedTypes.add(new FullyQualifiedJavaType("static org.mybatis.dynamic.sql.SqlBuilder.isEqualToWhenPresent"));
 
         final Method method = new Method("countSelective");                                     //$NON-NLS-1$
         method.setDefault(true);
