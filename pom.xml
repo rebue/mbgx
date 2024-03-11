@@ -97,7 +97,6 @@
         <!--            <artifactId>org.eclipse.core.contenttype</artifactId>-->
         <!--            <version>3.9.200</version>-->
         <!--        </dependency>-->
-        <!-- https://mvnrepository.com/artifact/xml-apis/xml-apis-ext -->
         <dependency>
             <groupId>xml-apis</groupId>
             <artifactId>xml-apis-ext</artifactId>
@@ -106,30 +105,10 @@
         <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.core</artifactId>
-            <!--            <exclusions>-->
-            <!--                <exclusion>-->
-            <!--                    <groupId>org.eclipse.platform</groupId>-->
-            <!--                    <artifactId>org.eclipse.core.jobs</artifactId>-->
-            <!--                </exclusion>-->
-            <!--                <exclusion>-->
-            <!--                    <groupId>org.eclipse.platform</groupId>-->
-            <!--                    <artifactId>org.eclipse.core.contenttype</artifactId>-->
-            <!--                </exclusion>-->
-            <!--            </exclusions>-->
         </dependency>
         <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.ui</artifactId>
-            <!--            <exclusions>-->
-            <!--                <exclusion>-->
-            <!--                    <groupId>net.java.dev.jna</groupId>-->
-            <!--                    <artifactId>jna</artifactId>-->
-            <!--                </exclusion>-->
-            <!--                <exclusion>-->
-            <!--                    <groupId>net.java.dev.jna</groupId>-->
-            <!--                    <artifactId>jna-platform</artifactId>-->
-            <!--                </exclusion>-->
-            <!--            </exclusions>-->
         </dependency>
 
         <dependency>
