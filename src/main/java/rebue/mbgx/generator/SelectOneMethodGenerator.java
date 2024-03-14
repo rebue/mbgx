@@ -15,6 +15,7 @@ public class SelectOneMethodGenerator extends AbstractJavaMapperMethodGenerator 
         final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
         importedTypes.add(new FullyQualifiedJavaType("static org.mybatis.dynamic.sql.SqlBuilder.isEqualToWhenPresent"));
+        importedTypes.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.DerivedColumn"));
 
         final Method method = new Method("selectOne");                                                  //$NON-NLS-1$
         method.setDefault(true);
@@ -30,7 +31,7 @@ public class SelectOneMethodGenerator extends AbstractJavaMapperMethodGenerator 
         method.addParameter(new Parameter(optionalType, "record"));                                         //$NON-NLS-1$
 
         method.addBodyLine("return selectOne(c ->");                                                       //$NON-NLS-1$
-        method.addBodyLine("    c.where(id, isEqualToWhenPresent(record::getId))");         //$NON-NLS-1$
+        method.addBodyLine("    c.where(DerivedColumn.of(\"1\"), isEqualTo(1)).and(id, isEqualToWhenPresent(record::getId))");         //$NON-NLS-1$
         for (final IntrospectedColumn column : introspectedTable.getNonPrimaryKeyColumns()) {
             method.addBodyLine("    .and(" + column.getJavaProperty() + ", isEqualToWhenPresent(record::get" + StringUtils.capitalize(column.getJavaProperty()) + "))"); //$NON-NLS-1$
         }

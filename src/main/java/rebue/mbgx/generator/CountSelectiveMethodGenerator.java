@@ -15,6 +15,7 @@ public class CountSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
         final Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
 //        importedTypes.add(FullyQualifiedJavaType.getNewListInstance());
         importedTypes.add(new FullyQualifiedJavaType("static org.mybatis.dynamic.sql.SqlBuilder.isEqualToWhenPresent"));
+        importedTypes.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.DerivedColumn"));
 
         final Method method = new Method("countSelective");                                     //$NON-NLS-1$
         method.setDefault(true);
@@ -28,7 +29,7 @@ public class CountSelectiveMethodGenerator extends AbstractJavaMapperMethodGener
         method.addParameter(new Parameter(listType, "record"));                                 //$NON-NLS-1$
 
         method.addBodyLine("return count(c ->");                                                //$NON-NLS-1$
-        method.addBodyLine("    c.where(id, isEqualToWhenPresent(record::getId))"); //$NON-NLS-1$
+        method.addBodyLine("    c.where(DerivedColumn.of(\"1\"), isEqualTo(1)).and(id, isEqualToWhenPresent(record::getId))"); //$NON-NLS-1$
         for (final IntrospectedColumn column : introspectedTable.getNonPrimaryKeyColumns()) {
             method.addBodyLine("    .and(" + column.getJavaProperty() + ", isEqualToWhenPresent(record::get" + StringUtils.capitalize(column.getJavaProperty()) + "))"); //$NON-NLS-1$
         }
