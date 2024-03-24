@@ -30,7 +30,7 @@ public class ModelManyToOnePlugin extends PluginAdapter {
 
         boolean isImport = false;
         for (PojoMeta pojoMeta : PojoMetasUtils.getPojoMetas()) {
-            for (ForeignKeyMeta foreignKey : pojoMeta.getTable().getImportedKeys()) {
+            for (ForeignKeyMeta foreignKey : pojoMeta.getTable().getForeignKeys()) {
                 if (foreignKey.getFkTableName().equalsIgnoreCase(tableName)) {
                     final FullyQualifiedJavaType clazz = new FullyQualifiedJavaType(topLevelClass.getType().getPackageName()
                             + "." + pojoMeta.getClassName() + "Mo");
