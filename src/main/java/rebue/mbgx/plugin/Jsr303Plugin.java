@@ -51,7 +51,7 @@ public class Jsr303Plugin extends PluginAdapter {
                     + introspectedColumn.getLength() + "\")");
         }
 
-        // 如果是无符号类型，添加 @Min(...) 符号，限制为非负数
+        // 如果是无符号类型，添加 @PositiveOrZero 符号，限制为非负数
         if (introspectedColumn.getActualTypeName().contains("UNSIGNED")) {
             topLevelClass.addImportedType("jakarta.validation.constraints.PositiveOrZero");
             field.addAnnotation("@PositiveOrZero(message = \"" + RemarksUtils.getTitleByRemarks(remarks) + "不能为负数\")");
