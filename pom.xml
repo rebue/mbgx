@@ -4,7 +4,7 @@
 
     <groupId>com.github.rebue.mbgx</groupId>
     <artifactId>mbgx</artifactId>
-    <version>3.0.16</version>
+    <version>3.0.17</version>
     <name>mbgx</name>
     <description>MyBatis自动生成代码的扩展工具</description>
 
@@ -14,7 +14,7 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <wheel.version>3.0.16</wheel.version>
+        <wheel.version>3.0.17</wheel.version>
     </properties>
 
     <url>https://github.com/rebue/mbgx</url>
