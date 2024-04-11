@@ -17,7 +17,7 @@ public class BooleanUtils {
                 // if (column.getLength() == 1 &&
                 // column.getActualColumnName().startsWith("IS_")) {
                 // 上面判断字段的长度，如果是在mysql下有bug，mysql会取出长度为3，而不是1
-                if (column.getActualColumnName().startsWith("IS_")) {
+                if (column.getActualColumnName().toLowerCase().startsWith("is_")) {
                     return true;
                 }
         }

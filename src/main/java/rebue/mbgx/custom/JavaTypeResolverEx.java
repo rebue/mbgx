@@ -9,7 +9,8 @@ import java.sql.Types;
 
 /**
  * 扩展了默认的Java类型解析器<br>
- * 如果数据库字段类型为char(1)--oracle，或TINYINT(1)--mysql，且名字以"IS_"开头，那么将Model类的相应属性映射成Boolean类型
+ * 1. 如果数据库字段类型为CHAR--oracle，或TINYINT--mysql和pgsql，且名字以"is_"开头，那么将Model类的相应属性映射成 Boolean 类型
+ * 2. 如果数据库字段类型为OTHER，且名字以"coord"结束，那么将Model类的相应属性映射成 PGgeometry 类型
  *
  * @author zbz
  */
@@ -22,6 +23,10 @@ public class JavaTypeResolverEx extends JavaTypeResolverDefaultImpl {
 
         if (BooleanUtils.isBooleanColumn(column)) {
             answer = typeMap.get(Types.BOOLEAN).getFullyQualifiedJavaType();
+        } else if (column.getJdbcType() == Types.OTHER) {
+            if (column.getActualColumnName().endsWith("coord")) {
+                answer = new FullyQualifiedJavaType("net.postgis.jdbc.PGgeometry");
+            }
         }
 
         return answer;
