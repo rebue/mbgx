@@ -24,7 +24,8 @@ public class JavaTypeResolverEx extends JavaTypeResolverDefaultImpl {
         if (BooleanUtils.isBooleanColumn(column)) {
             answer = typeMap.get(Types.BOOLEAN).getFullyQualifiedJavaType();
         } else if (column.getJdbcType() == Types.OTHER) {
-            if (column.getActualColumnName().endsWith("coord")) {
+            String columnName = column.getActualColumnName();
+            if (columnName.endsWith("coord") || columnName.endsWith("location")) {
                 answer = new FullyQualifiedJavaType("net.postgis.jdbc.PGgeometry");
             }
         }
