@@ -1,11 +1,11 @@
 package rebue.mbgx.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RemarksUtils {
     private final static Logger _log = LoggerFactory.getLogger(RemarksUtils.class);
@@ -42,7 +42,7 @@ public class RemarksUtils {
         _log.trace("getSplitJointRemarks: " + remarks);
 
         // 按行分割
-        final String[] remarksArr = remarks.split("[\\n\\r]");
+        final String[]     remarksArr = remarks.split("[\\n\\r]");
 
         // 去除空行
         final List<String> remarkList = new ArrayList<>();

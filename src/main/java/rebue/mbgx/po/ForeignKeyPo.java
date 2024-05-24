@@ -14,47 +14,47 @@ public class ForeignKeyPo {
     /**
      * 本表名称
      */
-    private String fkTableName;
+    private String  fkTableName;
 
     /**
      * 本表类名
      */
-    private String fkClassName;
+    private String  fkClassName;
 
     /**
      * 本表Bean变量的名称
      */
-    private String fkBeanName;
+    private String  fkBeanName;
 
     /**
      * 本表外键字段的名称
      */
-    private String fkFieldName;
+    private String  fkFieldName;
 
     /**
      * 关联表名
      */
-    private String pkTableName;
+    private String  pkTableName;
 
     /**
      * 关联表类名
      */
-    private String pkClassName;
+    private String  pkClassName;
 
     /**
      * 关联表Bean变量的名称
      */
-    private String pkBeanName;
+    private String  pkBeanName;
 
     /**
      * 关联表字段的名称
      */
-    private String pkFieldName;
+    private String  pkFieldName;
 
     /**
      * 外键说明的标题
      */
-    private String title;
+    private String  title;
 
     /**
      * 外键是否可空

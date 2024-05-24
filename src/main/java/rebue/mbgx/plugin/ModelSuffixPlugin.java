@@ -1,9 +1,9 @@
 package rebue.mbgx.plugin;
 
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
-
-import java.util.List;
 
 /**
  * 给Model类加上后缀的插件

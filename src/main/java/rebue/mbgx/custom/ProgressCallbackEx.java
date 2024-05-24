@@ -1,8 +1,9 @@
 package rebue.mbgx.custom;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.ProgressCallback;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 用日志记录进度

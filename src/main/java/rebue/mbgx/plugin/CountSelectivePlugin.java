@@ -1,12 +1,13 @@
 package rebue.mbgx.plugin;
 
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
-import rebue.mbgx.generator.CountSelectiveMethodGenerator;
 
-import java.util.List;
+import rebue.mbgx.generator.CountSelectiveMethodGenerator;
 
 /**
  * 给Mapper及其XML文件加上countSelective()方法的插件

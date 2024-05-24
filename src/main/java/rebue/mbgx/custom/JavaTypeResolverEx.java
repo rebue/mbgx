@@ -1,11 +1,12 @@
 package rebue.mbgx.custom;
 
+import java.sql.Types;
+
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
-import rebue.mbgx.util.BooleanUtils;
 
-import java.sql.Types;
+import rebue.mbgx.util.BooleanUtils;
 
 /**
  * 扩展了默认的Java类型解析器<br>
@@ -18,7 +19,7 @@ public class JavaTypeResolverEx extends JavaTypeResolverDefaultImpl {
 
     @Override
     protected FullyQualifiedJavaType overrideDefaultType(IntrospectedColumn column,
-                                                         FullyQualifiedJavaType defaultType) {
+            FullyQualifiedJavaType defaultType) {
         FullyQualifiedJavaType answer = super.overrideDefaultType(column, defaultType);
 
         if (BooleanUtils.isBooleanColumn(column)) {

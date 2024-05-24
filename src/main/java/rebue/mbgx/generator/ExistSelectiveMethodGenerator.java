@@ -1,10 +1,10 @@
 package rebue.mbgx.generator;
 
-import org.mybatis.generator.api.dom.java.*;
-import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
-
 import java.util.Set;
 import java.util.TreeSet;
+
+import org.mybatis.generator.api.dom.java.*;
+import org.mybatis.generator.codegen.mybatis3.javamapper.elements.AbstractJavaMapperMethodGenerator;
 
 public class ExistSelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
 

@@ -1,14 +1,15 @@
 package rebue.mbgx.plugin;
 
+import java.util.List;
+
 import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.TopLevelClass;
+
 import rebue.mbgx.util.IntrospectedUtils;
 import rebue.mbgx.util.RemarksUtils;
-
-import java.util.List;
 
 /**
  * 给Model类的属性加上JSR303规范的约束的插件
@@ -23,7 +24,7 @@ public class Jsr303Plugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(final Field field, final TopLevelClass topLevelClass, final IntrospectedColumn introspectedColumn, final IntrospectedTable introspectedTable,
-                                       final ModelClassType modelClassType) {
+            final ModelClassType modelClassType) {
         String remarks = introspectedColumn.getRemarks().replaceAll("\\\\n", "\n");
         // 如果字段要求非空
         if (!introspectedColumn.isNullable()) {

@@ -1,5 +1,8 @@
 package rebue.mbgx.custom;
 
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.commons.lang3.StringUtils;
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.IntrospectedColumn;
@@ -7,9 +10,6 @@ import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.XmlElement;
 import org.mybatis.generator.config.MergeConstants;
-
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * 自定义的注释生成器
@@ -149,12 +149,12 @@ public class CommentGeneratorEx implements CommentGenerator {
 
         javaElement.addJavaDocLine("*");
 
-//        final StringBuilder sb = new StringBuilder();
-//        sb.append("* 数据库表: ");
-//        sb.append(introspectedTable.getFullyQualifiedTable());
-//        javaElement.addJavaDocLine(sb.toString());
-//
-//        javaElement.addJavaDocLine("*");
+        // final StringBuilder sb = new StringBuilder();
+        // sb.append("* 数据库表: ");
+        // sb.append(introspectedTable.getFullyQualifiedTable());
+        // javaElement.addJavaDocLine(sb.toString());
+        //
+        // javaElement.addJavaDocLine("*");
 
         javaElement.addJavaDocLine("* " + MergeConstants.NEW_ELEMENT_TAG + " 自动生成的注释，如需修改本注释，请删除本行");
 
@@ -173,14 +173,14 @@ public class CommentGeneratorEx implements CommentGenerator {
 
         javaElement.addJavaDocLine("*");
 
-//        final StringBuilder sb = new StringBuilder();
-//        sb.append("* 数据库字段: ");
-//        sb.append(introspectedTable.getFullyQualifiedTable());
-//        sb.append('.');
-//        sb.append(introspectedColumn.getActualColumnName());
-//        javaElement.addJavaDocLine(sb.toString());
-//
-//        javaElement.addJavaDocLine("*");
+        // final StringBuilder sb = new StringBuilder();
+        // sb.append("* 数据库字段: ");
+        // sb.append(introspectedTable.getFullyQualifiedTable());
+        // sb.append('.');
+        // sb.append(introspectedColumn.getActualColumnName());
+        // javaElement.addJavaDocLine(sb.toString());
+        //
+        // javaElement.addJavaDocLine("*");
 
         addCommentLinesOfTag(javaElement);
 
@@ -216,7 +216,7 @@ public class CommentGeneratorEx implements CommentGenerator {
 
     @Override
     public void addGeneralMethodAnnotation(final Method method, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn,
-                                           final Set<FullyQualifiedJavaType> imports) {
+            final Set<FullyQualifiedJavaType> imports) {
         addJavadocOfField(method, introspectedTable, introspectedColumn);
     }
 
@@ -227,7 +227,7 @@ public class CommentGeneratorEx implements CommentGenerator {
 
     @Override
     public void addFieldAnnotation(final Field field, final IntrospectedTable introspectedTable, final IntrospectedColumn introspectedColumn,
-                                   final Set<FullyQualifiedJavaType> imports) {
+            final Set<FullyQualifiedJavaType> imports) {
         addJavadocOfField(field, introspectedTable, introspectedColumn);
     }
 
