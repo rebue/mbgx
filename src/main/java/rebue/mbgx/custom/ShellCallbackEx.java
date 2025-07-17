@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import org.mybatis.generator.exception.ShellException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
+import lombok.extern.slf4j.Slf4j;
 import rebue.mbgx.co.TagsCo;
 import rebue.wheel.core.source.MergeJavaFileUtils;
 
@@ -18,6 +19,7 @@ import rebue.wheel.core.source.MergeJavaFileUtils;
  *
  * @author zbz
  */
+@Slf4j
 public class ShellCallbackEx extends DefaultShellCallback {
     public ShellCallbackEx(final boolean overwrite) {
         super(overwrite);
@@ -31,14 +33,14 @@ public class ShellCallbackEx extends DefaultShellCallback {
     @Override
     public String mergeJavaFile(final String newFileSource, final File existingFile, final String[] javadocTags, final String fileEncoding) throws ShellException {
         try {
-            // TODO 目前1.4.0版本的DynamicSqlSupport合并代码有BUG，会重复生成一个静态类并放在根节点，所以规范暂时要求不要修改DynamicSqlSupport的代码
+            // FIXME 目前1.4.0版本的DynamicSqlSupport合并代码有BUG，会重复生成一个静态类并放在根节点，所以规范暂时要求不要修改DynamicSqlSupport的代码
             if (existingFile.getName().endsWith("DynamicSqlSupport.java")) {
                 return newFileSource;
             }
             return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags,
                     TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
         } catch (final FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("文件不存在", e);
             throw new ShellException(e);
         }
     }

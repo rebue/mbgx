@@ -83,7 +83,7 @@ public class MybatisGeneratorWrap {
         final MyBatisGenerator generator = new MyBatisGenerator(config, callback, warnings);
         generator.generate(new ProgressCallbackEx());
 
-        if (warnings.size() > 0) {
+        if (!warnings.isEmpty()) {
             String warn = "********************************** 请注意: 警告有 " + warnings.size() + " 条 **********************************";
             log.warn(StringUtils.rightPad(warn, 180));
 
