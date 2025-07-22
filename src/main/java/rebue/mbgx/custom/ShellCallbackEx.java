@@ -35,7 +35,7 @@ public class ShellCallbackEx extends DefaultShellCallback {
         try {
             // FIXME 目前1.4.0版本的DynamicSqlSupport合并代码有BUG，会重复生成一个静态类并放在根节点，所以规范暂时要求不要修改DynamicSqlSupport的代码
             if (existingFile.getName().endsWith("DynamicSqlSupport.java")) {
-                return newFileSource;
+                return newFileSource.replaceAll("[a-zA-Z-_]*\\.\\.", "");
             }
             return MergeJavaFileUtils.merge(newFileSource, existingFile, javadocTags, TagsCo.removedMemberTags, TagsCo.dontOverWriteFileTags, TagsCo.dontOverWriteAnnotationTags,
                     TagsCo.dontOverWriteExtendsTags, TagsCo.dontOverWriteImplementsTags);
