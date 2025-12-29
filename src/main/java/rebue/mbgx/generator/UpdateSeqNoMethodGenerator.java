@@ -67,21 +67,23 @@ public class UpdateSeqNoMethodGenerator extends AbstractJavaMapperMethodGenerato
             method4.addParameter(new Parameter(param1Type, "start"));
             method4.addParameter(new Parameter(param1Type, "end"));
             method4.addParameter(new Parameter(param2Type, "move"));
-            method3.addParameter(new Parameter(param3Type, "parentIdName"));
-            method3.addParameter(new Parameter(param4Type, "parentIdValue"));
+            method4.addParameter(new Parameter(param3Type, "parentIdName"));
+            method4.addParameter(new Parameter(param4Type, "parentIdValue"));
             method4.addBodyLine("""
                     return update(c -> c.set(seqNo).equalToConstant(seqNo.name() + move + "  1")
                             .where(seqNo, isBetween(start).and(end)).and(parentIdName, isEqualTo(parentIdValue)));
                     """);
 
             this.context.getCommentGenerator().addGeneralMethodComment(method1, this.introspectedTable);
-            this.context.getCommentGenerator().addGeneralMethodComment(method4, this.introspectedTable);
+            this.context.getCommentGenerator().addGeneralMethodComment(method2, this.introspectedTable);
             this.context.getCommentGenerator().addGeneralMethodComment(method3, this.introspectedTable);
+            this.context.getCommentGenerator().addGeneralMethodComment(method4, this.introspectedTable);
             if (this.context.getPlugins().clientSelectAllMethodGenerated(method1, interfaze, this.introspectedTable)) {
                 interfaze.addImportedTypes(importedTypes);
                 interfaze.addMethod(method1);
-                interfaze.addMethod(method4);
+                interfaze.addMethod(method2);
                 interfaze.addMethod(method3);
+                interfaze.addMethod(method4);
             }
         });
     }
